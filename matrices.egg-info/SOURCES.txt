@@ -1,0 +1,8 @@
+setup.py
+matrices/__init__.py
+matrices/views.py
+matrices.egg-info/PKG-INFO
+matrices.egg-info/SOURCES.txt
+matrices.egg-info/dependency_links.txt
+matrices.egg-info/requires.txt
+matrices.egg-info/top_level.txt
