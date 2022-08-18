@@ -1,0 +1,73 @@
+:root {
+  --navbar-height: 40px;
+  --items-padding: 10px;
+  --colour-left: rgb(205, 206, 200);
+  --colour-right: rgb(207, 237, 255);
+  --colour-navbar-background: rgb(255, 244, 150);
+  --colour-navbar-text: rgb(154, 154, 154);
+  --colour-navbar-background-hover: rgb(255, 188, 89);
+  --colour-navbar-text-hover: white;
+  --colour-left-formula: rgb(220, 220, 220);
+}
+
+body {
+  font-family: "Source Code Pro", monospace;
+}
+
+/* The navigation bar */
+/* full width, fixed to the top */
+ .navbar {
+    overflow: hidden;
+    background-color: var(--colour-navbar-background);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    height: var(--navbar-height);
+  }
+  
+  /* Links inside the navbar */
+  .navbar a {
+    float: left;
+    display: block;
+    color: var(--colour-navbar-text);
+    text-align: center;
+    padding: 10px 20px;
+    text-decoration: none;
+  }
+  
+  /* Change background on mouse-over */
+  .navbar a:hover {
+    background: var(--colour-navbar-background-hover);
+    color: var(--colour-navbar-text-hover);
+  }
+  
+  /* Main content */
+  .main {
+    margin-top: var(--navbar-height); /* Add a top margin to avoid content overlay */
+    height: 98%;
+    overflow: hidden;
+  } 
+
+  #algebra {
+    float: left;
+    padding: var(--items-padding);
+    width: calc(70% - 2 * var(--items-padding));
+    background: var(--colour-left);
+    height: calc(100vh - 2 * var(--navbar-height));
+    overflow: auto;
+  }
+
+  .entered-formula {
+    background-color: var(--colour-left-formula);
+    margin: 10px;
+    padding: 10px;
+  }
+
+  #memory {
+    float: right;
+    padding: var(--items-padding);
+    width: calc(30% - 2 * var(--items-padding));
+    background: var(--colour-right);
+    height: calc(100vh - 2 * var(--navbar-height));
+    overflow: auto;
+  }
