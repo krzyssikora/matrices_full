@@ -1,90 +1,64 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width">
-        <title>rational matrices</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    </head>
-    <body>
-        <div class="navbar">
-            <a href="{{ url_for('index') }}">home</a>
-            <a href="{{ url_for('help') }}">help</a>
-            <a href="#">add</a>
-        </div>
-          
-        <div class="main">
-            <div id="algebra"><h1 class="section-header" id="algebra-header">algebra of matrices</h1>
-                <div class="section-content">
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    Wow. Nice.
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p>
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <input type="text" id="user-input" placeholder="enter your expression"></textarea>
-                </div>
-            </div>
-            
-            <div id="storage">
-                <h1 class="section-header" id="storage-header">stored matrices</h1>
-                <div class="section-content">
-                    <p id="matrix_a1">
-                        \(A_1=
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                </div>
-            </div>
-            
-        </div> 
+{% extends "navbar.html" %}
+{% block navbar %}
+<div class="main">
+<div id="algebra"><h1 class="section-header" id="algebra-header">algebra of matrices</h1>
+    <div class="section-content">
+        <p>
+            When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+            \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+        </p>
+        <p class="entered-formula">
+            \(
+            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+            \)
+        </p>
+        Wow. Nice.
+        <p class="entered-formula">
+            \(
+            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+            \)
+        </p>
+        <p>
+            When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+            \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+        </p>
+        <p>
+            When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+            \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+        </p>
+        <p class="entered-formula">
+            \(
+            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+            \)
+        </p>
+        <p>
+            When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+            \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+        </p>
+        <p>
+            \(
+            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+            \)
+        </p>
+        <input type="text" id="user-input" placeholder="enter your expression"></textarea>
+    </div>
+</div>
 
-        <!-- Modal for waiting for maths to load -->
-        <div id="pop-up-universal" class="modal">
-            <div class="modal-content animate" id="modal_div">
-                <!-- <span id="wait_0">mathematics is loading... </span> -->
-            </div>
-        </div>
+<div id="storage">
+    <h1 class="section-header" id="storage-header">stored matrices</h1>
+    <div class="section-content">
+        <p id="matrix_a1">
+            \(A_1=
+            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+            \)
+        </p>
+    </div>
+</div>
 
-        
-    </body>
-
-        <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
-        <!-- <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"> -->
-        <!-- </script> -->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="{{ url_for('static', filename='js/mathjax-config.js') }}" defer></script>
-    <script type="text/javascript" id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
-</html>
+<!-- Modal for waiting for maths to load -->
+<div id="pop-up-universal" class="modal">
+    <div class="modal-content animate" id="modal_div">
+        <!-- <span id="wait_0">mathematics is loading... </span> -->
+    </div>
+</div>
+{% endblock %}

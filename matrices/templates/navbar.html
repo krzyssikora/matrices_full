@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>rational matrices</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <body>
+        <div class="navbar">
+            <a href="{{ url_for('index') }}">home</a>
+            <a href="{{ url_for('help') }}">help</a>
+            <a href="#">add</a>
+        </div>
+        {% block navbar %}
+        {% endblock %}
+
+        
+    </body>
+
+        <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
+        <!-- <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"> -->
+        <!-- </script> -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="{{ url_for('static', filename='js/mathjax-config.js') }}" defer></script>
+    <script type="text/javascript" id="MathJax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</html>
