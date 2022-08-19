@@ -18,4 +18,8 @@
         clone.id = `matrix_a${i + 2}`
         storage_box.appendChild(clone);
     };
+    var user_input_field = document.getElementById('user-input');
+    user_input_field.addEventListener('change', function() {
+        console.log(user_input_field.value)
+    });
 })();

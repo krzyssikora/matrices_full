@@ -33,7 +33,7 @@ body {
   background-color: var(--colour-navbar-background);
   position: fixed; 
   top: 0; 
-  width: 100%; 
+  width: calc(100% - 16px); 
   height: var(--navbar-height);
 }
 
@@ -127,7 +127,8 @@ body {
 #user-input {
   width: calc(100% - 2 * var(--standard-margin-padding));
   margin: var(--standard-margin-padding);
-  text-align: left;
+  direction: ltr;
+  /* text-align: left; */
 }
 
 #storage {
