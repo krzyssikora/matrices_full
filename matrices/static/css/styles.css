@@ -1,13 +1,25 @@
 :root {
+  /* dimensions */
   --navbar-height: 40px;
+  --section-header-height: 40px;
+  --section-height: calc(100vh - 2 * var(--navbar-height));
   --items-padding: 10px;
+  --standard-margin-padding: 10px;
+  --left-width: calc(70% - 2 * var(--items-padding));
+  --right-width: calc(30% - 2 * var(--items-padding));
+  /* colours */
   --colour-left: rgb(205, 206, 200);
   --colour-right: rgb(207, 237, 255);
   --colour-navbar-background: rgb(255, 244, 150);
   --colour-navbar-text: rgb(154, 154, 154);
-  --colour-navbar-background-hover: rgb(255, 188, 89);
+  /* --colour-navbar-background-hover: rgb(255, 188, 89); */
+  --colour-navbar-background-hover: rgb(255, 126, 94);
   --colour-navbar-text-hover: white;
   --colour-left-formula: rgb(220, 220, 220);
+  --colour-section-header: rgba(255, 255, 255, 0.5);
+  --colour-scrollbar: rgb(255, 126, 94);
+  --colour-scrollbar-background: var(--colour-navbar-background);
+  --colour-scrollbar-hover: rgb(78, 78, 78);
 }
 
 body {
@@ -16,58 +28,113 @@ body {
 
 /* The navigation bar */
 /* full width, fixed to the top */
- .navbar {
-    overflow: hidden;
-    background-color: var(--colour-navbar-background);
-    position: fixed; 
-    top: 0; 
-    width: 100%; 
-    height: var(--navbar-height);
-  }
-  
-  /* Links inside the navbar */
-  .navbar a {
-    float: left;
-    display: block;
-    color: var(--colour-navbar-text);
-    text-align: center;
-    padding: 10px 20px;
-    text-decoration: none;
-  }
-  
-  /* Change background on mouse-over */
-  .navbar a:hover {
-    background: var(--colour-navbar-background-hover);
-    color: var(--colour-navbar-text-hover);
-  }
-  
-  /* Main content */
-  .main {
-    margin-top: var(--navbar-height); /* Add a top margin to avoid content overlay */
-    height: 98%;
-    overflow: hidden;
-  } 
+.navbar {
+  overflow: hidden;
+  background-color: var(--colour-navbar-background);
+  position: fixed; 
+  top: 0; 
+  width: 100%; 
+  height: var(--navbar-height);
+}
 
-  #algebra {
-    float: left;
-    padding: var(--items-padding);
-    width: calc(70% - 2 * var(--items-padding));
-    background: var(--colour-left);
-    height: calc(100vh - 2 * var(--navbar-height));
-    overflow: auto;
-  }
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+  color: var(--colour-navbar-text);
+  text-align: center;
+  padding: 10px 20px;
+  text-decoration: none;
+}
 
-  .entered-formula {
-    background-color: var(--colour-left-formula);
-    margin: 10px;
-    padding: 10px;
-  }
+/* Change background on mouse-over */
+.navbar a:hover {
+  background: var(--colour-navbar-background-hover);
+  color: var(--colour-navbar-text-hover);
+}
 
-  #memory {
-    float: right;
-    padding: var(--items-padding);
-    width: calc(30% - 2 * var(--items-padding));
-    background: var(--colour-right);
-    height: calc(100vh - 2 * var(--navbar-height));
-    overflow: auto;
-  }
+/* Main content */
+.main {
+  margin-top: var(--navbar-height); /* to avoid content overlay */
+  height: 98%;
+  overflow: hidden;
+} 
+
+.section-header {
+  margin: 0;
+  position: fixed; 
+  top: var(--navbar-height);
+  display: block;
+  height: var(--section-header-height);
+  background-color: var(--colour-section-header);
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  width: auto;
+  z-index: 1;
+}
+
+/* Designing for scroll-bar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--colour-scrollbar-background);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--colour-scrollbar);
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--colour-scrollbar-hover);
+}
+
+#algebra-header {
+  width: calc(var(--left-width) - 25px);
+}
+
+#storage-header {
+  width: calc(var(--right-width) - 25px);
+}
+
+.section-content {
+  margin-top: calc(var(--section-header-height) + var(--navbar-height));
+}
+
+#algebra {
+  float: left;
+  padding: var(--items-padding);
+  width: var(--left-width);
+  background: var(--colour-left);
+  height: var(--section-height);
+  overflow: auto;
+  direction: rtl;
+  text-align: left;
+}
+
+.entered-formula {
+  background-color: var(--colour-left-formula);
+  margin: var(--standard-margin-padding);
+  padding: var(--standard-margin-padding);
+}
+
+#user-input {
+  width: calc(100% - 2 * var(--standard-margin-padding));
+  margin: var(--standard-margin-padding);
+  text-align: left;
+}
+
+#storage {
+  float: right;
+  padding: var(--items-padding);
+  width: var(--right-width);
+  background: var(--colour-right);
+  height: var(--section-height);
+  overflow: auto;
+}
