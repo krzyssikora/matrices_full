@@ -57,8 +57,34 @@
 
 <!-- Modal for waiting for maths to load -->
 <div id="pop-up-universal" class="modal">
-    <div class="modal-content animate" id="modal_div">
-        <!-- <span id="wait_0">mathematics is loading... </span> -->
-    </div>
+    <div class="modal-content animate" id="modal_div"></div>
+</div>
+
+<!-- Modal for new matrix -->
+<div id="enter_matrix" class="modal">
+    <span onclick="document.getElementById('enter_matrix').style.display='none'"
+    class="close" title="Close Modal">&times;</span>
+
+    <!-- Modal Content -->
+    <form class="modal-content animate" action="/save_query" id="query-name-form">
+        <div class="pop-up-form-container">
+            <label class="pop-up-form-label" for="rows"><b>number of rows</b></label>
+            <input class="pop-up-form-input" type="text" name="rows" id="rows">
+            <label class="pop-up-form-label" for="columns"><b>number of columns</b></label>
+            <input class="pop-up-form-input" type="text" name="columns" id="columns">
+        </div>
+        <div class="pop-up-form-container" id="matrix-input">
+        </div>
+        <div class="pop-up-form-container">
+            <button class="pop-up-form-button" type="submit">confirm</button>
+        </div>
+        <div class="pop-up-form-container pop-up-form-info">
+            If you leave the field empty, a default query name will be assigned.
+        </div>
+        <div class="pop-up-form-container pop-up-form-cancelbtn-container">
+            <button class="general-button" type="button" 
+            onclick="document.getElementById('ask_query_name').style.display='none'" class="cancelbtn">cancel</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
