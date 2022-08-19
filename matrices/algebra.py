@@ -1,18 +1,7 @@
-import os
 import math
 import random
 import sqlite3
 from matrices.help import options, help_explanations
-
-
-def clear_screen():
-    """Clears the screen."""
-    if os.name == 'posix':
-        # for mac and linux (here, os.name is 'posix')
-        _ = os.system('clear')
-    else:
-        # for windows
-        _ = os.system('cls')
 
 
 def string_to_fraction(fraction_as_string):
@@ -684,6 +673,7 @@ def read_input(inp, input_iteration=0):
                 return_value.extend(tail)
                 return return_value
             break
+        return None
 
     # TODO: documentation here
     # TODO: make it shorter
@@ -1124,7 +1114,6 @@ def view_matrices():
         import_from_database()
     while True:
         if clear_queries:
-            clear_screen()
             clear_queries = False
             if len(matrices_dict) == 0:
                 print("There are no created matrices.")
@@ -1210,7 +1199,6 @@ class Matrix:
             self.denominator = denominator
             denominators = list()
             # creating list of numerators (mat) and denominators
-            clear_screen()
             print("Allowed values: integers, decimals or fractions of the form \'num/den\'.")
             for r in range(rows):
                 while True:
@@ -1705,7 +1693,6 @@ class EmptyMatrix(Matrix):
             self.mat = [[0 for _ in range(self.rows)] for _ in range(self.rows)]
 
 
-clear_screen()
 matrices_dict = dict()
 tmp_matrices = dict()
 tmp_fractions = dict()

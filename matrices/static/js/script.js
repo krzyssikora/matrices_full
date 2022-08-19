@@ -1,5 +1,37 @@
+var loaded = 0;
+
 (function() {
     "use strict";
+
+
+    // info that mathJax is loading
+    var pop_up = document.getElementById('pop-up-universal');  
+    pop_up.style.display = 'block';
+
+    var modal_content = document.getElementById('modal_div');
+    var i = 0
+
+    function checkLoaded() {
+        if(loaded === 0) {
+            for (let j=0; j<5; j++) {
+                let clone = document.createElement('span');
+                clone.innerHTML = 'mathematics is loading... ';
+                clone.id = `wait_${i}`;
+                i++;
+                clone.style.color = '#' + Math.floor(Math.random()*16777215).toString(16);
+                clone.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                clone.style.fontSize = (50 + Math.floor(Math.random()*35)).toString(16) + 'px';
+                modal_content.appendChild(clone);
+            };
+            window.setTimeout(checkLoaded, 1); 
+        } else {
+            setTimeout(() => {
+                modal_content.innerHTML = '';
+                pop_up.style.display = 'none';
+            }, 1000)
+        };
+    }
+    checkLoaded();
 
     function ScrollToBottom(element) {
         element.scrollTop = element.scrollHeight - element.offsetHeight;

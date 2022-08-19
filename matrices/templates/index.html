@@ -9,8 +9,8 @@
     <body>
         <div class="navbar">
             <a href="{{ url_for('index') }}">home</a>
-            <a href="#news">help</a>
-            <a href="#contact">add</a>
+            <a href="{{ url_for('help') }}">help</a>
+            <a href="#">add</a>
         </div>
           
         <div class="main">
@@ -26,64 +26,6 @@
                         \)
                     </p>
                     Wow. Nice.
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p>
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p class="entered-formula">
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
-                    <p>
-                        \(
-                        \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                        \)
-                    </p>
-                    <p>
-                        When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
-                        \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
-                    </p>
                     <p class="entered-formula">
                         \(
                         \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
@@ -128,28 +70,16 @@
             
         </div> 
 
-        <!-- The Modal -->
-        <div id="ask_query_name" class="modal">
-            <span onclick="document.getElementById('ask_query_name').style.display='none'"
-            class="close" title="Close Modal">&times;</span>
-
-            <!-- Modal Content -->
-            <form class="modal-content animate" action="/save_query" id="query-name-form">
-                <div class="pop-up-form-container">
-                    <label class="pop-up-form-label" for="qname"><b>query name</b></label>
-                    <input class="pop-up-form-input" type="text" placeholder="enter your query name" name="qname" id="qname">
-                    <button class="pop-up-form-button" type="submit">confirm</button>
-                </div>
-                <div class="pop-up-form-container pop-up-form-info">
-                    If you leave the field empty, a default query name will be assigned.
-                </div>
-                <div class="pop-up-form-container pop-up-form-cancelbtn-container">
-                    <button class="general-button" type="button" 
-                    onclick="document.getElementById('ask_query_name').style.display='none'" class="cancelbtn">cancel</button>
-                </div>
-            </form>
+        <!-- Modal for waiting for maths to load -->
+        <div id="pop-up-universal" class="modal">
+            <div class="modal-content animate" id="modal_div">
+                <!-- <span id="wait_0">mathematics is loading... </span> -->
+            </div>
         </div>
+
+        
     </body>
+
         <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
         <!-- <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"> -->
         <!-- </script> -->

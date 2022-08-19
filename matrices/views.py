@@ -9,4 +9,4 @@ def index():
 
 @app.route('/help')
 def help():
-    return
+    return render_template('help.html')
