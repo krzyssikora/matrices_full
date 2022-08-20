@@ -1,5 +1,6 @@
 var loaded = 0;
 const matrices_names = [];
+const maxMatrixDimension = 9;
 
 (function() {
     "use strict";
@@ -29,7 +30,7 @@ const matrices_names = [];
             setTimeout(() => {
                 modal_content.innerHTML = '';
                 pop_up.style.display = 'none';
-            }, 1000)
+            }, 1)  // later change to 1000
         };
     }
     checkLoaded();
@@ -55,6 +56,7 @@ const matrices_names = [];
     var user_input_field = document.getElementById('user-input');
     user_input_field.addEventListener('change', function() {
         console.log(user_input_field.value)
+        // the maths starts here
     });
 
 
@@ -97,11 +99,13 @@ const matrices_names = [];
         return [true, ''];
     };
 
+    var rows_number;
+    var columns_number;
     function correctMatrixDimension(dimension_string) {
         var dimension = parseInt(dimension_string)
         var dimension_string_2 = dimension.toString()
         if (dimension_string.length == dimension_string_2.length) {
-            if ((dimension > 0) && (dimension < 10)) {
+            if ((dimension > 0) && (dimension <= maxMatrixDimension)) {
                 return [true, dimension]
             } else {
                 return [false, 'dimension must be a whole number between 1 and 9']
@@ -111,13 +115,21 @@ const matrices_names = [];
         };
     };
 
-
     // define divs for enetering new matrix
     var matrix_name_div = document.getElementById('matrix-name-div');
+    matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
+    matrix_name_div.style.display = 'none';
     var matrix_dimensions_div = document.getElementById('matrix-dimensions-div');
+    matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
+    matrix_dimensions_div.style.display = 'none';
     var matrix_input_div = document.getElementById('matrix-input');
+    matrix_input_div.style.display = 'none';
     var matrix_rest_div = document.getElementById('matrix-rest');
-
+    matrix_rest_div.style.display = 'none';
+    const matrix_name_field = document.getElementById('matrix-name');
+    const rows_field = document.getElementById('rows');
+    const columns_field = document.getElementById('columns');
+        
     function makeGrid(rows_number, columns_number) {
         matrix_input_div.style.display = 'grid';
         var spot = document.getElementById('matrix-input');
@@ -133,88 +145,95 @@ const matrices_names = [];
         spot.innerHTML = html;
     };
 
+    function checkDimension(field, field_str) {
+        console.log(field_str);
+        var info_dim = document.getElementById('dimensions-error-info');
+        info_dim.style.display = 'none';
+        var dim_checked = correctMatrixDimension(field.value);
+        var dim_correct = dim_checked[0];
+        var dim_message = dim_checked[1];
+        if (dim_correct) {
+            if (field_str == 'rows') {
+                rows_number = dim_message
+            } else if (field_str == 'columns') {
+                columns_number = dim_message
+            };
+            if (rows_number > 0 && columns_number > 0) {
+                matrix_dimensions_div.innerHTML = `${rows_number} rows, ${columns_number} columns`;
+                matrix_rest_div.style.display = 'block';
+                makeGrid(rows_number, columns_number);
+            };
+        } else {
+            info_dim.style.display = 'block'
+            info_dim.innerHTML = dim_message + '<span class="input-error-info" id="dimensions-error-info"></span>';
+        };
+    };
+
+    function checkName(matrix_name_field) {
+        var matrix_name = matrix_name_field.value.toUpperCase();
+        var name_checked = correctMatrixName(matrix_name);
+        var name_correct = name_checked[0];
+        var name_message = name_checked[1];
+        rows_number = 0;
+        columns_number = 0;
+
+        if (name_correct) {
+            // show rows and columns
+            matrix_dimensions_div.style.display = 'block';
+            // hide matrix name
+            matrix_name_div.innerHTML = `matrix name: ${matrix_name}`;
+            // get dimensions
+            rows_field.addEventListener('change', (e) => {
+                e.preventDefault();
+                checkDimension(rows_field, 'rows')
+            });
+            rows_field.addEventListener('keypress', (e) => {
+                var key = e.charCode || e.keyCode || 0;     
+                if (key == 13) {
+                    e.preventDefault();
+                    checkDimension(rows_field, 'rows')
+                }
+            });
+
+            columns_field.addEventListener('change', (e) => {
+                e.preventDefault();
+                checkDimension(columns_field, 'columns')
+            });
+            columns_field.addEventListener('keypress', (e) => {
+                var key = e.charCode || e.keyCode || 0;     
+                if (key == 13) {
+                    e.preventDefault();
+                    checkDimension(columns_field, 'columns')
+                }
+            });        
+        } else {
+            var info = document.getElementById('matrix-error-info');
+            info.style.display = 'block';
+            info.innerHTML = name_message + '<span class="input-error-info" id="matrix-error-info"></span>';
+        };
+    };
+
     document.getElementById('add-matrix').addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('enter_matrix').style.display = 'block';
-        matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
         matrix_name_div.style.display = 'block';
-        matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
         matrix_dimensions_div.style.display = 'none';
         matrix_input_div.style.display = 'none';
         matrix_rest_div.style.display = 'none';
 
-
-        const matrix_name_field = document.getElementById('matrix-name');
-        const rows_field = document.getElementById('rows');
-        const columns_field = document.getElementById('columns');
-        const fields = [matrix_name_field, rows_field, columns_field];
-
-        // switch of ENTER
-        for (let field of fields) {
-            matrix_name_field.addEventListener('keypress', (e) => {
-                var key = e.charCode || e.keyCode || 0;     
-                if (key == 13) {
-                e.preventDefault();
-                }
-            });
-        };
+        const fields = [matrix_name_field]; //, rows_field, columns_field];
 
         // check name
         matrix_name_field.addEventListener('change', (e) => {
             e.preventDefault();
-            var matrix_name = matrix_name_field.value.toUpperCase();
-            var name_checked = correctMatrixName(matrix_name);
-            var name_correct = name_checked[0];
-            var name_message = name_checked[1];
-            var rows_number = 0;
-            var columns_number = 0;
-
-            function checkDimension(field, field_str) {
-                var info_dim = document.getElementById('dimensions-error-info');
-                info_dim.style.display = 'none';
-                var dim_checked = correctMatrixDimension(field.value);
-                var dim_correct = dim_checked[0];
-                var dim_message = dim_checked[1];
-                if (dim_correct) {
-                    if (field_str == 'rows') {
-                        rows_number = dim_message
-                    } else if (field_str == 'columns') {
-                        columns_number = dim_message
-                    };
-                    if (rows_number > 0 && columns_number > 0) {
-                        matrix_dimensions_div.innerHTML = `${rows_number} rows, ${columns_number} columns`;
-                        matrix_rest_div.style.display = 'block';
-                        makeGrid(rows_number, columns_number);
-                    };
-                } else {
-                    info_dim.style.display = 'block'
-                    info_dim.innerHTML = dim_message;
-                };
-            };
-
-            if (name_correct) {
-                // show rows and columns
-                matrix_dimensions_div.style.display = 'block';
-                // hide matrix name
-                matrix_name_div.innerHTML = `matrix name: ${matrix_name}`;
-                // get dimensions
-                rows_field.addEventListener('change', (e) => {
-                    e.preventDefault();
-                    checkDimension(rows_field, 'rows')
-                });
-                columns_field.addEventListener('change', (e) => {
-                    e.preventDefault();
-                    checkDimension(columns_field, 'columns')
-                });
-                            
-            } else {
-                var info = document.getElementById('matrix-error-info');
-                info.style.display = 'block';
-                info.innerHTML = name_message;
-            };
+            checkName(matrix_name_field);
         });
-
-        // makeGrid(2,3)
-
+        matrix_name_field.addEventListener('keypress', (e) => {
+            var key = e.charCode || e.keyCode || 0;     
+            if (key == 13) {
+                e.preventDefault();
+                checkName(matrix_name_field);
+            }
+        });
     })
 })();

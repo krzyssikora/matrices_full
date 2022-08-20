@@ -27,7 +27,6 @@ window.MathJax = {
         var storage_box = document.getElementById('storage');
         storage_box.scrollTop = storage_box.scrollHeight - storage_box.offsetHeight;
         loaded = 1;
-        // pop_up.style.display = 'none';
       });
     }
   }
