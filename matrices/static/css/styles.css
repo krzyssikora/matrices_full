@@ -8,14 +8,19 @@
   --left-width: calc(70% - 2 * var(--items-padding));
   --right-width: calc(30% - 2 * var(--items-padding));
   /* colours */
-  --colour-left: rgb(205, 206, 200);
+  /* --colour-left: rgb(205, 206, 200); */
+  /* --colour-left: rgb(196, 255, 176); */
+  --colour-left: rgb(253, 248, 207);
   --colour-right: rgb(207, 237, 255);
-  --colour-navbar-background: rgb(255, 244, 150);
-  --colour-navbar-text: rgb(154, 154, 154);
+  /* --colour-navbar-background: rgb(255, 244, 150); */
+  --colour-navbar-background: rgb(196, 255, 176);
+  /* --colour-navbar-text: rgb(154, 154, 154); */
+  --colour-navbar-text: rgb(97, 94, 94);
   /* --colour-navbar-background-hover: rgb(255, 188, 89); */
   --colour-navbar-background-hover: rgb(255, 126, 94);
   --colour-navbar-text-hover: white;
-  --colour-left-formula: rgb(220, 220, 220);
+  /* --colour-left-formula: rgb(220, 220, 220); */
+  --colour-left-formula: rgb(255, 236, 175);
   --colour-section-header: rgba(255, 255, 255, 0.5);
   --colour-scrollbar: rgb(255, 126, 94);
   --colour-scrollbar-background: var(--colour-navbar-background);
@@ -124,11 +129,23 @@ body {
   padding: var(--standard-margin-padding);
 }
 
+.pop-up-form-label {
+  display: block;
+  min-width: 300px;
+}
+
+.pop-up-form-input {
+  font-size: large;
+}
+
 #user-input {
   width: calc(100% - 2 * var(--standard-margin-padding));
+  /* height: 20px; */
   margin: var(--standard-margin-padding);
   direction: ltr;
-  /* text-align: left; */
+  border: solid 2px var(--colour-scrollbar);
+  border-radius: 4px;
+  font-size: large;
 }
 
 #storage {
@@ -215,20 +232,41 @@ body {
   to {transform: scale(1)}
 }
 
+#matrix-name-div, #matrix-dimensions-div {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  display: none;
+}
+
+.input-error-info {
+  padding: 10px;
+  color: red;
+  background-color: rgba(255, 255, 255, 0.5);
+  display: none;
+}
+
 #matrix-input {
-  margin: 20px auto;
-  display: grid;
+  border-left: solid black;
+  border-right: solid black;
+  border-radius: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 40px;
+  display: none;
   gap: 0;
   align-items: start;
-  /* background-color: rgb(99, 123, 151); */
-  background-color: var(--colour-navbar-background);
+  padding: 5px;
 }
 
 .matrix-elt {
-  height: 20px;
   width: fit-content;
-  max-width: 20px;
+  height: 30px;
+  max-width: 30px;
   border: 0;
+  border-radius: 4px;
   padding: 3px;
   margin: 3px;
 }
+
+/* # for id
+   . for class */
