@@ -117,18 +117,26 @@ const maxMatrixDimension = 9;
 
     // define divs for enetering new matrix
     var matrix_name_div = document.getElementById('matrix-name-div');
-    matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
-    matrix_name_div.style.display = 'none';
     var matrix_dimensions_div = document.getElementById('matrix-dimensions-div');
-    matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
-    matrix_dimensions_div.style.display = 'none';
     var matrix_input_div = document.getElementById('matrix-input');
-    matrix_input_div.style.display = 'none';
     var matrix_rest_div = document.getElementById('matrix-rest');
-    matrix_rest_div.style.display = 'none';
-    const matrix_name_field = document.getElementById('matrix-name');
-    const rows_field = document.getElementById('rows');
-    const columns_field = document.getElementById('columns');
+    var matrix_name_field;
+    var rows_field;
+    var columns_field;  
+    
+    function refreshNewMatrixDivs() {
+        matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
+        matrix_name_div.style.display = 'none';
+        matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
+        matrix_dimensions_div.style.display = 'none';
+        matrix_input_div.style.display = 'none';
+        matrix_rest_div.style.display = 'none';
+        matrix_name_field = document.getElementById('matrix-name');
+        rows_field = document.getElementById('rows');
+        columns_field = document.getElementById('columns');    
+    };
+
+    refreshNewMatrixDivs();
         
     function makeGrid(rows_number, columns_number) {
         matrix_input_div.style.display = 'grid';
@@ -146,7 +154,6 @@ const maxMatrixDimension = 9;
     };
 
     function checkDimension(field, field_str) {
-        console.log(field_str);
         var info_dim = document.getElementById('dimensions-error-info');
         info_dim.style.display = 'none';
         var dim_checked = correctMatrixDimension(field.value);
@@ -159,13 +166,13 @@ const maxMatrixDimension = 9;
                 columns_number = dim_message
             };
             if (rows_number > 0 && columns_number > 0) {
-                matrix_dimensions_div.innerHTML = `${rows_number} rows, ${columns_number} columns`;
+                matrix_dimensions_div.innerHTML = `${rows_number} rows, ${columns_number} columns <span class="input-error-info" id="dimensions-error-info"></span>`;
                 matrix_rest_div.style.display = 'block';
                 makeGrid(rows_number, columns_number);
             };
         } else {
             info_dim.style.display = 'block'
-            info_dim.innerHTML = dim_message + '<span class="input-error-info" id="dimensions-error-info"></span>';
+            info_dim.innerHTML = dim_message;
         };
     };
 
@@ -181,7 +188,7 @@ const maxMatrixDimension = 9;
             // show rows and columns
             matrix_dimensions_div.style.display = 'block';
             // hide matrix name
-            matrix_name_div.innerHTML = `matrix name: ${matrix_name}`;
+            matrix_name_div.innerHTML = `matrix name: ${matrix_name} <span class="input-error-info" id="matrix-error-info"></span>`;
             // get dimensions
             rows_field.addEventListener('change', (e) => {
                 e.preventDefault();
@@ -209,12 +216,13 @@ const maxMatrixDimension = 9;
         } else {
             var info = document.getElementById('matrix-error-info');
             info.style.display = 'block';
-            info.innerHTML = name_message + '<span class="input-error-info" id="matrix-error-info"></span>';
+            info.innerHTML = name_message;
         };
     };
 
     document.getElementById('add-matrix').addEventListener('click', (e) => {
         e.preventDefault();
+        refreshNewMatrixDivs();
         document.getElementById('enter_matrix').style.display = 'block';
         matrix_name_div.style.display = 'block';
         matrix_dimensions_div.style.display = 'none';
