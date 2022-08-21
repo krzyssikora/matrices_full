@@ -1,32 +1,36 @@
-options = [["action", "command/-s", "help command"],
-           ["clear screen", "cls", "help cls"],
-           ["multiply by a scalar", "2 * M, 1/2 * M, 1.2 * M, N = 5/2 * M", "help *"],
-           ["add matrices", "M + N", "help +"],
-           ["subtract matrices", "M - N", "help -"],
-           ["multiply matrices", "M * N", "help *"],
-           ["determinant of a matrix", "det(M)", "help det"],
-           ["inverse of a matrix", "M^(-1)", "help inv"],
-           ["transpose of a matrix", "M^T", "help T"],
-           ["augment a matrix with another", "aug(M, N)", "help aug"],
-           ["sub-matrix", "sub(M, rows, columns) - from top left or", "help sub"],
-           ["", "sub(M, r0, r1, c0, c1)", ""],
-           ["", " - rows from r0 to r1 inclusive", ""],
-           ["", " - columns from c0 to c1 inclusive", ""],
-           ["row echelon form", "ref(M)", "help ref"],
-           ["reduced row echelon form", "rref(M)", "help rref"],
-           ["assign result to a matrix", "M = ...", "help ="],
-           ["", "(both to a new or existing matrix)", ""],
-           ["create a new matrix", "create", "help create"],
-           ["delete a matrix from memory and database", "del M, del(M)", "help del"],
-           ["       or a few matrices at once", "del(M, N)", ""],
-           ["change a matrix into a form that", "wolframalpha(M)", "help wolframalpha"],
-           ["       can be used in wolframalpha.com", "", ""],
-           ["", "", ""],
-           ["", "(brackets may be used)", ""],
-           ["", "(but only the round ones)", ""],
-           ["", "", ""],
-           ["end application", "end, quit, exit, out", "help end"]
-           ]
+import logging
+
+DATABASE = "matrices/database/matrices_rational.sqlite"
+
+help_options = [["action", "command/-s", "help command"],
+                ["clear screen", "cls", "help cls"],
+                ["multiply by a scalar", "2 * M, 1/2 * M, 1.2 * M, N = 5/2 * M", "help *"],
+                ["add matrices", "M + N", "help +"],
+                ["subtract matrices", "M - N", "help -"],
+                ["multiply matrices", "M * N", "help *"],
+                ["determinant of a matrix", "det(M)", "help det"],
+                ["inverse of a matrix", "M^(-1)", "help inv"],
+                ["transpose of a matrix", "M^T", "help T"],
+                ["augment a matrix with another", "aug(M, N)", "help aug"],
+                ["sub-matrix", "sub(M, rows, columns) - from top left or", "help sub"],
+                ["", "sub(M, r0, r1, c0, c1)", ""],
+                ["", " - rows from r0 to r1 inclusive", ""],
+                ["", " - columns from c0 to c1 inclusive", ""],
+                ["row echelon form", "ref(M)", "help ref"],
+                ["reduced row echelon form", "rref(M)", "help rref"],
+                ["assign result to a matrix", "M = ...", "help ="],
+                ["", "(both to a new or existing matrix)", ""],
+                ["create a new matrix", "create", "help create"],
+                ["delete a matrix from memory and database", "del M, del(M)", "help del"],
+                ["       or a few matrices at once", "del(M, N)", ""],
+                ["change a matrix into a form that", "wolframalpha(M)", "help wolframalpha"],
+                ["       can be used in wolframalpha.com", "", ""],
+                ["", "", ""],
+                ["", "(brackets may be used)", ""],
+                ["", "(but only the round ones)", ""],
+                ["", "", ""],
+                ["end application", "end, quit, exit, out", "help end"]
+                ]
 
 help_explanations = [["CLS", "cls",
                       '''Clears the screen and prints again the names and dimensions 
@@ -73,3 +77,19 @@ help_explanations = [["CLS", "cls",
                      ["EXIT", "exit", '''Ends the application.'''],
                      ["out", "out", '''Ends the application.''']
                      ]
+
+# logging.basicConfig(filename='my_music_{}.log'.format(datetime.strftime(datetime.now(),
+#                                                                         '%Y_%m_%d')),
+#                     level=logging.DEBUG)
+# create logger
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.DEBUG)
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# add formatter to ch
+ch.setFormatter(formatter)
+# add ch to logger
+_logger.addHandler(ch)

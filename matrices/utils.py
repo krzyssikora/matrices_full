@@ -1,3 +1,7 @@
+from matrices import matrices_dict, matrices_str_dict
+from matrices import database
+
+
 def create_matrix():
     """Creates a matrix entered by a user.
 
@@ -6,9 +10,8 @@ def create_matrix():
 
     The matrix is added to the global matrices_dict dictionary and to the database.
     """
-    global matrices_dict
     if len(matrices_dict) == 0:
-        import_from_database()
+        database.import_from_database()
     # asks for dimensions
     while True:
         r = input("Number of rows:    ")

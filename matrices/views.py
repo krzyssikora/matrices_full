@@ -1,4 +1,5 @@
 from matrices import app
+from matrices import matrices_dict, matrices_str_dict
 from flask import render_template, request
 
 

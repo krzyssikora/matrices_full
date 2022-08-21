@@ -1,6 +1,8 @@
 import math
 import random
-from matrices.help import options, help_explanations
+from matrices.config import help_options, help_explanations
+from matrices import database, utils, config
+from matrices import matrices_dict, matrices_str_dict
 
 
 def string_to_fraction(fraction_as_string):
@@ -87,13 +89,13 @@ def add_fractions(numerator_1, denominator_1, numerator_2, denominator_2):
 
 
 def correct_matrix_name(matrix_name_as_string):
+    # redundant? implemented in JS
     """Checks if matrix_name_as_string is a correct matrix name.
 
     Returns:
         True, "" - when correct, otherwise:
         False, a message to be displayed
     """
-    global matrices_dict
     if len(matrix_name_as_string) > 5:  # too long
         return False, "Maximum length of a name is 5 characters."
     if matrix_name_as_string in matrices_dict:  # already taken
@@ -130,7 +132,7 @@ def find_start_name(input_string, position_after):
     Returns:
         The function returns the index of the starting character or -1 if a name is not found.
     """
-    global matrices_dict, tmp_matrices
+    global tmp_matrices
     return_value = - 1
     # search in matrices_dict and in tmp_matrices
     possible_index = position_after - 1
@@ -211,7 +213,7 @@ def read_input(inp, input_iteration=0):
         input_iteration (int): Shows the depth of recursion.
             (restricted characters are checked only for iteration = 0)
     """
-    global matrices_dict, assign_answer, tmp_matrices, tmp_fractions
+    global assign_answer, tmp_matrices, tmp_fractions
     # a few auxiliary functions
 
     def basics(input_string):
@@ -229,7 +231,7 @@ def read_input(inp, input_iteration=0):
         elif input_string == "CLS":
             return "c"
         elif input_string == "CREATE":
-            create_matrix()
+            utils.create_matrix()
             return ""
         elif input_string.startswith("WOLFRAMALPHA"):
             # returns the matrix in a form ready to be pasted
@@ -256,7 +258,7 @@ def read_input(inp, input_iteration=0):
             else:
                 m_name = ""
             if m_name in matrices_dict:
-                delete_matrix(m_name)
+                database.delete_matrix(m_name)
                 return ""
             else:
                 # or a few matrices
@@ -273,18 +275,18 @@ def read_input(inp, input_iteration=0):
                             mats = list(matrices_dict.values())
                             names = list(matrices_dict.keys())
                             ind = mats.index(mat)
-                            delete_matrix(names[ind])
+                            database.delete_matrix(names[ind])
                     return ""
                 return None, "There is no matrix named " + m_name + " in the database."
         elif input_string.startswith("HELP"):
             # displays help commands
             if len(input_string) == 4:
-                matrix_help_general_menu()
+                utils.matrix_help_general_menu()
             else:
                 help_command = input_string[4:]
                 print("HELP COMMAND:", help_command)
-                if matrix_help_command(help_command) is None:
-                    matrix_help_general_menu()
+                if utils.matrix_help_command(help_command) is None:
+                    utils.matrix_help_general_menu()
                     return None, "Only help commands listed above can be used."
             return ""
         return None
@@ -316,7 +318,7 @@ def read_input(inp, input_iteration=0):
         1: overwrite (bool) - if True, answer overwrites an existing matrix,
         2: name of the new matrix
         """
-        global matrices_dict, assign_answer
+        global assign_answer
         nonlocal correct
         if "=" in input_string:
             equal_sign_position = input_string.find("=")
@@ -431,7 +433,7 @@ def read_input(inp, input_iteration=0):
     # TODO: documentation here
     # TODO: make it shorter
     def prefix_functions(input_string, pref):
-        global matrices_dict, assign_answer
+        global assign_answer
         nonlocal brackets, brackets_open, brackets_close, input_iteration
         # replaces functions in the input (input_string) of the form: func(...)
         # where pref = "func("
@@ -504,7 +506,7 @@ def read_input(inp, input_iteration=0):
                             print("Matrix " + assign_answer[2] + ":")
                             print(m_result)
                             matrices_dict.update({assign_answer[2]: m_result})
-                            save_matrix(assign_answer[2])
+                            database.save_matrix(assign_answer[2])
                             assign_answer[2] = ""
                             if assign_answer[1]:
                                 assign_answer[1] = False
@@ -861,10 +863,10 @@ def view_matrices():
     """Displays matrices that are stored in the database.
 
     Reads user's input and returns an adequate answer."""
-    global matrices_dict, assign_answer, tmp_matrices, tmp_fractions
+    global assign_answer, tmp_matrices, tmp_fractions
     clear_queries = True
     if len(matrices_dict) == 0:
-        import_from_database()
+        database.import_from_database()
     while True:
         if clear_queries:
             clear_queries = False
@@ -914,11 +916,11 @@ def view_matrices():
                 if assign_answer[0]:  # answer is to be stored
                     matrices_dict.update({assign_answer[2]: result})
                     if assign_answer[1]:  # answer is to overwrite an existing matrix
-                        delete_matrix(assign_answer[2], False)
+                        database.delete_matrix(assign_answer[2], False)
                         print("The result was stored in the existing matrix " + assign_answer[2] + ".")
                     else:
                         print("The result was stored in the new matrix " + assign_answer[2] + ".")
-                    save_matrix(assign_answer[2])
+                    database.save_matrix(assign_answer[2])
                     assign_answer = [False, False, ""]
             elif isinstance(result, tuple):
                 if result[1] == 1:
@@ -1446,10 +1448,10 @@ class EmptyMatrix(Matrix):
             self.mat = [[0 for _ in range(self.rows)] for _ in range(self.rows)]
 
 
-matrices_dict = dict()
+# matrices_dict = dict()
 tmp_matrices = dict()
 tmp_fractions = dict()
 assign_answer = [False, False, ""]
-import_from_database()
-view_matrices()
-quit()
+# database.import_from_database()
+# view_matrices()
+# quit()

@@ -1,11 +1,14 @@
 import sqlite3
 from matrices.algebra import Matrix
+from matrices import matrices_dict, matrices_str_dict
+from matrices import config
+from matrices.config import _logger
 
 
 def import_from_database():
     """Imports matrices from database to the global dictionary matrices_dict."""
-    global matrices_dict
-    conn = sqlite3.connect('matrices_rational.sqlite')
+    _logger.debug(config.DATABASE)
+    conn = sqlite3.connect(config.DATABASE)
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS matrices
     (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -29,6 +32,7 @@ def import_from_database():
             matrix.mat[line[0]][line[1]] = line[2]
     conn.commit()
     cur.close()
+    return matrices_dict
 
 
 def delete_matrix(m_name, fully=True):
@@ -41,8 +45,7 @@ def delete_matrix(m_name, fully=True):
         In such a case the matrix previously labeled with this name should be removed from the database,
         but in the dictionary an update is sufficient.
     """
-    global matrices_dict
-    conn = sqlite3.connect('matrices_rational.sqlite')
+    conn = sqlite3.connect(config.DATABASE)
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS matrices
     (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -70,8 +73,7 @@ def save_matrix(m_name):
 
         Returns None if the matrix was not added to the global matrices_dic dictionary.
     """
-    global matrices_dict
-    conn = sqlite3.connect('matrices_rational.sqlite')
+    conn = sqlite3.connect(config.DATABASE)
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS matrices
     (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,

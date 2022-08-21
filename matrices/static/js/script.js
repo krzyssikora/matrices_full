@@ -58,8 +58,18 @@ const maxMatrixDimension = 9;
     var user_input_field = document.getElementById('user-input');
     user_input_field.addEventListener('change', function() {
         console.log(user_input_field.value)
-        // the maths starts here
+        // TODO the maths starts here
     });
+
+    // create crosses in input boxes
+	$('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
+		// $(this).prev('input').val('').trigger('change').focus();
+        console.log('this div will close')
+	}));
+	// $('div.algebra-chunk').wrap('<span class="deleteicon"></span>').after($('<span>x</span>').click(function() {
+	// 	// $(this).prev('input').val('').trigger('change').focus();
+    //     console.log('this div will close')
+	// }));
 
 
 
@@ -296,7 +306,7 @@ const maxMatrixDimension = 9;
         console.log(`matrix columns: ${columns}`);
         console.log('values');
         for (var i=0; i<matrix.length; i++) {
-            console.log(matrix[i].value);
+            console.log(matrix[i].value || 0);
         ;}
         // TODO: send data to python
     })
