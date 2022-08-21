@@ -153,6 +153,7 @@ const maxMatrixDimension = 9;
             };
         };
         spot.innerHTML = html;
+        document.getElementById('m_0_0').focus();
     };
 
     function checkDimension(field, field_str) {
@@ -195,29 +196,51 @@ const maxMatrixDimension = 9;
             rows_field.focus();
             rows_field.select();
             // get dimensions
+            // rows
+            // tab should foucus on rows input
+            rows_field.addEventListener('keydown', (e) => {
+                var key = e.charCode || e.keyCode || 0;
+                if ((key == 9 || key == '9') && (columns_number > 0)) {
+                    e.preventDefault();
+                    checkDimension(rows_field, 'rows');
+                }
+            });
+            // enter should focus on rows input
+            rows_field.addEventListener('keypress', (e) => {
+                var key = e.charCode || e.keyCode || 0;   
+                if (key == 13) {
+                    e.preventDefault();
+                    checkDimension(rows_field, 'rows');
+                }
+            });
+            // other actions should focus on rows input
             rows_field.addEventListener('change', (e) => {
                 e.preventDefault();
-                checkDimension(rows_field, 'rows')
-            });
-            rows_field.addEventListener('keypress', (e) => {
-                var key = e.charCode || e.keyCode || 0;     
-                if (key == 13) {
-                    e.preventDefault();
-                    checkDimension(rows_field, 'rows')
-                }
+                checkDimension(rows_field, 'rows');
             });
 
-            columns_field.addEventListener('change', (e) => {
-                e.preventDefault();
-                checkDimension(columns_field, 'columns')
+            // columns
+            // tab should foucus on columns input
+            columns_field.addEventListener('keydown', (e) => {
+                var key = e.charCode || e.keyCode || 0;
+                if ((key == 9 || key == '9') && (rows_number > 0)) {
+                    e.preventDefault();
+                    checkDimension(columns_field, 'columns');
+                }
             });
+            // enter should focus on columns input
             columns_field.addEventListener('keypress', (e) => {
-                var key = e.charCode || e.keyCode || 0;     
+                var key = e.charCode || e.keyCode || 0;   
                 if (key == 13) {
                     e.preventDefault();
-                    checkDimension(columns_field, 'columns')
+                    checkDimension(columns_field, 'columns');
                 }
-            });        
+            });
+            // other actions should focus on columns input
+            columns_field.addEventListener('change', (e) => {
+                e.preventDefault();
+                checkDimension(columns_field, 'columns');
+            });
         } else {
             var info = document.getElementById('matrix-error-info');
             info.style.display = 'block';
@@ -240,7 +263,7 @@ const maxMatrixDimension = 9;
         // tab should foucus on rows input
         matrix_name_field.addEventListener('keydown', (e) => {
             var key = e.charCode || e.keyCode || 0;
-            if (key == 13 || key == 9 || key == '9') {
+            if (key == 9 || key == '9') {
                 e.preventDefault();
                 checkName(matrix_name_field);
             }
@@ -248,7 +271,7 @@ const maxMatrixDimension = 9;
         // enter should focus on rows input
         matrix_name_field.addEventListener('keypress', (e) => {
             var key = e.charCode || e.keyCode || 0;   
-            if (key == 13 || key == 9 || key == '9') {
+            if (key == 13) {
                 e.preventDefault();
                 checkName(matrix_name_field);
             }
