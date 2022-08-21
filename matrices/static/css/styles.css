@@ -128,11 +128,11 @@ body {
 }
 
 .algebra-chunk {
+  width: calc(100% - 2 * var(--standard-margin-padding));
   border: solid 1px var(--colour-left-border);
   border-radius: 10px;
   padding-top: 0;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: var(--standard-margin-padding);
 }
 
 span.deleteicon span {
@@ -192,7 +192,7 @@ span.deleteicon span:hover {
   /* height: 20px; */
   margin: var(--standard-margin-padding);
   direction: ltr;
-  border: solid 2px var(--colour-scrollbar);
+  border: solid 1px var(--colour-scrollbar);
   border-radius: 4px;
   font-size: large;
 }
