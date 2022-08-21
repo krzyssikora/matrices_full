@@ -44,8 +44,10 @@ const maxMatrixDimension = 9;
     algebra_header.style.width = algebra_box.clientWidth;
     
     var storage_box = document.getElementById('storage');
-    var node = document.getElementById('matrix_a1');
+    
 
+    // temporary
+    var node = document.getElementById('matrix_a1');
     for (let i=0; i<=10; i++) {
         var clone = node.cloneNode(true);
         clone.innerHTML = clone.innerHTML.replace('A_1', `A_{${i + 2}}`);
@@ -127,7 +129,7 @@ const maxMatrixDimension = 9;
     function refreshNewMatrixDivs() {
         matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
         matrix_name_div.style.display = 'none';
-        matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
+        matrix_dimensions_div.innerHTML = '<label class="pop-up-form-label" for="rows" id="rows-label"><b>number of rows</b></label><input class="pop-up-form-input" type="text" name="rows" tabindex="0" id="rows"><br><label class="pop-up-form-label" for="columns" id="columns-label"><b>number of columns</b></label><input class="pop-up-form-input" type="text" name="columns" id="columns"><span class="input-error-info" id="dimensions-error-info"></span>';
         matrix_dimensions_div.style.display = 'none';
         matrix_input_div.style.display = 'none';
         matrix_rest_div.style.display = 'none';
@@ -147,7 +149,7 @@ const maxMatrixDimension = 9;
         var html = '';
         for (let r=0; r<rows_number; r++) {
             for (let c=0; c<columns_number; c++) {
-                html += `<input type="text" class="matrix-elt", id=m_${r}_${c}""> `
+                html += `<input type="text" class="matrix-elt" name="array" id="m_${r}_${c}"> `
             };
         };
         spot.innerHTML = html;
@@ -189,6 +191,9 @@ const maxMatrixDimension = 9;
             matrix_dimensions_div.style.display = 'block';
             // hide matrix name
             matrix_name_div.innerHTML = `matrix name: ${matrix_name} <span class="input-error-info" id="matrix-error-info"></span>`;
+            // rows_field.focus({focusVisible: true});
+            rows_field.focus();
+            rows_field.select();
             // get dimensions
             rows_field.addEventListener('change', (e) => {
                 e.preventDefault();
@@ -229,19 +234,47 @@ const maxMatrixDimension = 9;
         matrix_input_div.style.display = 'none';
         matrix_rest_div.style.display = 'none';
 
-        const fields = [matrix_name_field]; //, rows_field, columns_field];
+        document.getElementById('matrix-name').focus();
 
         // check name
-        matrix_name_field.addEventListener('change', (e) => {
-            e.preventDefault();
-            checkName(matrix_name_field);
-        });
-        matrix_name_field.addEventListener('keypress', (e) => {
-            var key = e.charCode || e.keyCode || 0;     
-            if (key == 13) {
+        // tab should foucus on rows input
+        matrix_name_field.addEventListener('keydown', (e) => {
+            var key = e.charCode || e.keyCode || 0;
+            if (key == 13 || key == 9 || key == '9') {
                 e.preventDefault();
                 checkName(matrix_name_field);
             }
         });
+        // enter should focus on rows input
+        matrix_name_field.addEventListener('keypress', (e) => {
+            var key = e.charCode || e.keyCode || 0;   
+            if (key == 13 || key == 9 || key == '9') {
+                e.preventDefault();
+                checkName(matrix_name_field);
+            }
+        });
+        // other actions should focus on rows input
+        matrix_name_field.addEventListener('change', (e) => {
+            e.preventDefault();
+            checkName(matrix_name_field);
+        });
+    })
+
+    document.getElementById('new-matrix-confirm-button').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('enter_matrix').style.display = 'none';
+        var name = matrix_name_field.value;
+        var rows = rows_field.value;
+        var columns = columns_field.value;
+        var matrix = document.getElementsByName('array');
+
+        console.log(`matrix name: ${name}`);
+        console.log(`matrix rows: ${rows}`);
+        console.log(`matrix columns: ${columns}`);
+        console.log('values');
+        for (var i=0; i<matrix.length; i++) {
+            console.log(matrix[i].value);
+        ;}
+        // TODO: send data to python
     })
 })();

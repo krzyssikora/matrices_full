@@ -1,6 +1,7 @@
 setup.py
 matrices/__init__.py
 matrices/algebra.py
+matrices/database.py
 matrices/help.py
 matrices/utils.py
 matrices/views.py

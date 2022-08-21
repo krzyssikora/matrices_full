@@ -282,6 +282,8 @@ body {
   border-radius: 4px;
   padding: 3px;
   margin: 3px;
+  font-size: large;
+  text-align: center;
 }
 
 /* # for id
