@@ -1,13 +1,12 @@
 import sqlite3
 from matrices.algebra import Matrix
-from matrices import matrices_dict, matrices_str_dict
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices
 from matrices import config
 from matrices.config import _logger
 
 
 def import_from_database():
     """Imports matrices from database to the global dictionary matrices_dict."""
-    _logger.debug(config.DATABASE)
     conn = sqlite3.connect(config.DATABASE)
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS matrices
@@ -21,15 +20,11 @@ def import_from_database():
         if matrix_data[1] in matrices_dict:
             continue
         else:
-            matrices_dict.update({matrix_data[1]: Matrix(matrix_data[2], matrix_data[3])})
-            matrices_dict.get(matrix_data[1]).denominator = matrix_data[4]
-            ids.append([matrix_data[0], matrix_data[1]])
-    for id_name in ids:
-        matrix = matrices_dict.get(id_name[1])
-        cur.execute("SELECT row, column, element FROM numerators WHERE matrix_id = ?", (id_name[0],))
-        all_rows = cur.fetchall()
-        for line in all_rows:
-            matrix.mat[line[0]][line[1]] = line[2]
+            idx, name, rows, columns, denominator = matrix_data
+            cur.execute("SELECT element FROM numerators WHERE matrix_id = ?  ORDER by row, column", (idx,))
+            numerators = cur.fetchall()
+            values = [(numerator[0], denominator) for numerator in numerators]
+            matrices_dict.update({name: Matrix(rows, columns, values)})
     conn.commit()
     cur.close()
     return matrices_dict

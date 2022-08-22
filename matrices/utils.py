@@ -1,8 +1,16 @@
-from matrices import matrices_dict, matrices_str_dict
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices
 from matrices import database
 
 
+def get_list_of_matrix_dict_latexed(m_dict):
+    m_list = list()
+    for name, matrix in m_dict.items():
+        m_list.append('\\({}={}\\)'.format(name, matrix.get_latex_form()))
+    return m_list
+
+
 def create_matrix():
+    # todo: redundant? made in JS
     """Creates a matrix entered by a user.
 
     The user inputs the following information following a prompt:

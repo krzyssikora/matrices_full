@@ -1,11 +1,11 @@
 import math
-import random
 from matrices.config import help_options, help_explanations
 from matrices import database, utils, config
-from matrices import matrices_dict, matrices_str_dict
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices
+from matrices.config import _logger
 
 
-def string_to_fraction(fraction_as_string):
+def get_fraction_from_string(fraction_as_string):
     """Changes a string that represents a fraction into a tuple (numerator, denominator).
 
     Args:
@@ -18,13 +18,15 @@ def string_to_fraction(fraction_as_string):
         Exception when the parameter is incorrect.
     """
     try:
-        if "/" in fraction_as_string:
+        if fraction_as_string == '':  # a field left blank is to result in 0
+            return 0, 1
+        elif '/' in fraction_as_string:
             slash_position = fraction_as_string.find("/")
             numerator = int(fraction_as_string[:slash_position])
             den = int(fraction_as_string[slash_position + 1:])
             if den < 0:
                 numerator, den = -numerator, -den
-        elif "." in fraction_as_string:
+        elif '.' in fraction_as_string:
             n = 0
             numerator = float(fraction_as_string)
             while True:
@@ -44,12 +46,21 @@ def string_to_fraction(fraction_as_string):
         den = int(den / div)
         return numerator, den
     except Exception as e:
-        if e == "":
-            print(e)
+        _logger.debug(e)
         return None, None
 
 
-def cancel_down(numerator, denominator):
+def get_fractions_from_list_of_strings(list_of_fractions_as_strings):
+    fractions = list()
+    for fraction_as_string in list_of_fractions_as_strings:
+        numerator, denominator = get_fraction_from_string(fraction_as_string)
+        if numerator is None:
+            return None
+        fractions.append((numerator, denominator))
+    return fractions
+
+
+def get_fraction_cancelled_down(numerator, denominator):
     """Cancels a fraction down.
 
     Args:
@@ -61,14 +72,17 @@ def cancel_down(numerator, denominator):
     """
     if denominator < 0:
         numerator, denominator = -numerator, -denominator
-    divisor = math.gcd(numerator, denominator)
+    try:
+        divisor = math.gcd(numerator, denominator)
+    except TypeError:
+        _logger.error('>>>> {}, {}'.format(numerator, denominator))
     if divisor == 1:
         return numerator, denominator
     else:
         return numerator // divisor, denominator // divisor
 
 
-def add_fractions(numerator_1, denominator_1, numerator_2, denominator_2):
+def get_sum_of_fractions(numerator_1, denominator_1, numerator_2, denominator_2):
     """Returns a sum of two fraction as a simplified fraction.
 
     Args:
@@ -80,50 +94,20 @@ def add_fractions(numerator_1, denominator_1, numerator_2, denominator_2):
     Returns:
         A tuple (top, bottom) representing the simplified sum of two fractions.
     """
-    numerator_1, denominator_1 = cancel_down(numerator_1, denominator_1)
-    numerator_2, denominator_2 = cancel_down(numerator_2, denominator_2)
+    numerator_1, denominator_1 = get_fraction_cancelled_down(numerator_1, denominator_1)
+    numerator_2, denominator_2 = get_fraction_cancelled_down(numerator_2, denominator_2)
+
     common_denominator = math.lcm(denominator_1, denominator_2)
+
     factor_1 = common_denominator // denominator_1
     factor_2 = common_denominator // denominator_2
-    return cancel_down(numerator_1 * factor_1 + numerator_2 * factor_2, common_denominator)
+
+    return get_fraction_cancelled_down(numerator_1 * factor_1 + numerator_2 * factor_2, common_denominator)
 
 
-def correct_matrix_name(matrix_name_as_string):
-    # redundant? implemented in JS
-    """Checks if matrix_name_as_string is a correct matrix name.
-
-    Returns:
-        True, "" - when correct, otherwise:
-        False, a message to be displayed
-    """
-    if len(matrix_name_as_string) > 5:  # too long
-        return False, "Maximum length of a name is 5 characters."
-    if matrix_name_as_string in matrices_dict:  # already taken
-        return False, "The name is already in use."
-    letter_used = False
-    digit_used = False
-    # only letters and digits allowed, digits must follow letters
-    for letter in matrix_name_as_string:
-        if not letter_used and (ord("0") <= ord(letter) <= ord("9")):
-            return False, "Letters must go before digits."
-        if (ord("A") <= ord(letter) <= ord("Z")) and digit_used:
-            return False, "Digits must not be placed before letters."
-        if ord("A") <= ord(letter) <= ord("Z"):
-            letter_used = True
-        elif ord("0") <= ord(letter) <= ord("9"):
-            digit_used = True
-        else:
-            return False, "Only letters and digits are allowed."
-    for word in {"DET", "CLS", "HELP", "CREATE"}:
-        if word in matrix_name_as_string:
-            return False, "A name cannot contain \"" + word + "\", it is a reserved word."
-    if matrix_name_as_string == "T":
-        return False, "A name cannot be \"T\", it is a reserved word."
-    return True, ""
-
-
-def find_start_name(input_string, position_after):
+def find_starting_index_of_matrix_name_in_string(input_string, position_after=None):
     """Finds a starting index of a matrix name.
+    Checks for names in both matrices_dict and in tmp_matrices
 
     Args:
         input_string (str): A string to be searched.
@@ -132,9 +116,9 @@ def find_start_name(input_string, position_after):
     Returns:
         The function returns the index of the starting character or -1 if a name is not found.
     """
-    global tmp_matrices
     return_value = - 1
-    # search in matrices_dict and in tmp_matrices
+    if position_after is None:
+        position_after = len(input_string)
     possible_index = position_after - 1
     while True:
         if possible_index < 0:
@@ -149,7 +133,7 @@ def find_start_name(input_string, position_after):
     return return_value
 
 
-def bracketing(input_string, opening_char="(", closing_char=")"):
+def get_pairs_of_brackets_from_string(input_string, opening_char="(", closing_char=")"):
     """Creates a list of pairs of positions of opening and closing brackets.
 
     Args:
@@ -159,6 +143,7 @@ def bracketing(input_string, opening_char="(", closing_char=")"):
 
     Returns:
         A list of elements: [opening_index, closing_index] of pairs of indexes of opening and closed brackets.
+        #todo why not a tuple?
     """
     ret = list()
     openings = list()
@@ -205,7 +190,45 @@ def bracketing(input_string, opening_char="(", closing_char=")"):
     return ret
 
 
+def correct_matrix_name(matrix_name_as_string):
+    # todo: redundant? Seems so, as implemented in JS, but also below in read_input.invalid_assignment_variable,
+    #  but this can be easily refactored. Two ideas for this:
+    #  1. add save button to results, below will not be needed (save numbers, too?)
+    #  2. check if name in dicts, separately check if correct
+    """Checks if matrix_name_as_string is a correct matrix name.
+
+    Returns:
+        True, "" - when correct, otherwise:
+        False, a message to be displayed
+    """
+    if len(matrix_name_as_string) > 5:  # too long
+        return False, "Maximum length of a name is 5 characters."
+    if matrix_name_as_string in matrices_dict:  # already taken
+        return False, "The name is already in use."
+    letter_used = False
+    digit_used = False
+    # only letters and digits allowed, digits must follow letters
+    for letter in matrix_name_as_string:
+        if not letter_used and (ord("0") <= ord(letter) <= ord("9")):
+            return False, "Letters must go before digits."
+        if (ord("A") <= ord(letter) <= ord("Z")) and digit_used:
+            return False, "Digits must not be placed before letters."
+        if ord("A") <= ord(letter) <= ord("Z"):
+            letter_used = True
+        elif ord("0") <= ord(letter) <= ord("9"):
+            digit_used = True
+        else:
+            return False, "Only letters and digits are allowed."
+    for word in {"DET", "CLS", "HELP", "CREATE"}:
+        if word in matrix_name_as_string:
+            return False, "A name cannot contain \"" + word + "\", it is a reserved word."
+    if matrix_name_as_string == "T":
+        return False, "A name cannot be \"T\", it is a reserved word."
+    return True, ""
+
+
 def read_input(inp, input_iteration=0):
+    # todo REFACTOR
     """Changes the input (inp) into an answer - a matrix, a fraction (tuple) or None with an additional error message.
 
     Args:
@@ -348,7 +371,7 @@ def read_input(inp, input_iteration=0):
         """
         nonlocal brackets, brackets_open, brackets_close
         input_string = input_string.replace(" ", "")
-        brackets = bracketing(input_string)
+        brackets = get_pairs_of_brackets_from_string(input_string)
         if brackets is None:
             return None
         brackets_open = [x[0] for x in brackets]
@@ -540,7 +563,7 @@ def read_input(inp, input_iteration=0):
                     input_string = input_string[:pos0] + m_name + " " * num_spaces + input_string[pos2 + 1:]
                 else:
                     input_string = input_string[:pos0] + m_name + input_string[pos2 + 1:]
-                    brackets = bracketing(input_string)
+                    brackets = get_pairs_of_brackets_from_string(input_string)
                     if brackets is None:
                         return None
                     brackets_open = [x[0] for x in brackets]
@@ -595,7 +618,7 @@ def read_input(inp, input_iteration=0):
                 # base is an expression in brackets
                 pos_base0 = brackets[brackets_close.index(pos_base1)][0]
             else:
-                pos_base0 = find_start_name(input_string, pos_base1 + 1)
+                pos_base0 = find_starting_index_of_matrix_name_in_string(input_string, pos_base1 + 1)
                 if pos_base0 == -1:
                     # base is without brackets, it is not a matrix, so it must be a positive integer
                     pos_base0 = pos_base1
@@ -611,7 +634,7 @@ def read_input(inp, input_iteration=0):
                     exponent = -exponent
                 m_result = (1, 1)
                 for _ in range(exponent):
-                    m_result = cancel_down(m_result[0] * base_val[0], m_result[1] * base_val[1])
+                    m_result = get_fraction_cancelled_down(m_result[0] * base_val[0], m_result[1] * base_val[1])
                     m_name = "F_" + str(len(tmp_fractions))
                     tmp_fractions.update({m_name: m_result})
             elif isinstance(base_val, Matrix):
@@ -633,7 +656,7 @@ def read_input(inp, input_iteration=0):
                 input_string = input_string[:pos_base0] + m_name + " " * num_spaces + input_string[pos_power1 + 1:]
             else:
                 input_string = input_string[:pos_base0] + m_name + input_string[pos_power1 + 1:]
-                brackets = bracketing(inp)
+                brackets = get_pairs_of_brackets_from_string(inp)
                 if brackets is None:
                     return None
                 brackets_open = [x[0] for x in brackets]
@@ -669,7 +692,7 @@ def read_input(inp, input_iteration=0):
                 return None
             elif isinstance(m_result, tuple):
                 m_name = "F_" + str(len(tmp_fractions))
-                m_result = cancel_down(m_result[0], m_result[1])
+                m_result = get_fraction_cancelled_down(m_result[0], m_result[1])
                 tmp_fractions.update({m_name: m_result})
             elif isinstance(m_result, Matrix):
                 m_name = "M_" + str(len(tmp_matrices))
@@ -679,7 +702,7 @@ def read_input(inp, input_iteration=0):
                 input_string = input_string[:elt[0]] + m_name + " " * num_spaces + input_string[elt[1] + 1:]
             else:
                 input_string = input_string[:elt[0]] + m_name + input_string[elt[1] + 1:]
-                brackets = bracketing(inp)
+                brackets = get_pairs_of_brackets_from_string(inp)
                 if brackets is None:
                     return None
                 brackets_open = [x[0] for x in brackets]
@@ -756,13 +779,13 @@ def read_input(inp, input_iteration=0):
             elif type(m1) == tuple and type(m2) == tuple:
                 m10, m11, m20, m21 = int(m1[0]), int(m1[1]), int(m2[0]), int(m2[1])
                 if operation == "+":
-                    return add_fractions(m10, m11, m20, m21)
+                    return get_sum_of_fractions(m10, m11, m20, m21)
                 elif operation == "-":
-                    return add_fractions(m10, m11, -m20, m21)
+                    return get_sum_of_fractions(m10, m11, -m20, m21)
                 elif operation == "*":
-                    return cancel_down(m10 * m20, m11 * m21)
+                    return get_fraction_cancelled_down(m10 * m20, m11 * m21)
                 elif operation == "/":
-                    return cancel_down(m10 * m21, m11 * m20)
+                    return get_fraction_cancelled_down(m10 * m21, m11 * m20)
                 else:
                     return None
             elif isinstance(m1, Matrix) and type(m2) == tuple:
@@ -801,7 +824,7 @@ def read_input(inp, input_iteration=0):
             return tmp_fractions.get(input_string)
         else:  # a number, implemented as a tuple (numerator, denominator)
             try:
-                num, den = string_to_fraction(input_string)
+                num, den = get_fraction_from_string(input_string)
                 if num is None:
                     return None
                 else:
@@ -823,7 +846,7 @@ def read_input(inp, input_iteration=0):
         inp = inp[inp.find("=") + 1:]
 
     # the rest is for the part after "="
-    brackets = bracketing(inp)
+    brackets = get_pairs_of_brackets_from_string(inp)
     if brackets is None:
         return None, "Unbalanced brackets."
     inp = remove_redundant_brackets(inp)
@@ -858,81 +881,8 @@ def read_input(inp, input_iteration=0):
     return simple_object(inp)
 
 
-# TODO: can this be made shorter?
-def view_matrices():
-    """Displays matrices that are stored in the database.
-
-    Reads user's input and returns an adequate answer."""
-    global assign_answer, tmp_matrices, tmp_fractions
-    clear_queries = True
-    if len(matrices_dict) == 0:
-        database.import_from_database()
-    while True:
-        if clear_queries:
-            clear_queries = False
-            if len(matrices_dict) == 0:
-                print("There are no created matrices.")
-            else:
-                print("Available matrices (rows x columns):")
-                m_names = list(matrices_dict.keys())
-                m_names.sort()
-                aux_string = ""
-                for i, m in enumerate(m_names):
-                    new_name = m + " (" + str(matrices_dict.get(m).rows) + "x" \
-                               + str(matrices_dict.get(m).columns) + "), "
-                    if len(aux_string + new_name) < 80:
-                        aux_string += new_name
-                    else:
-                        if i >= len(matrices_dict.keys()) - 1:
-                            aux_string = aux_string[:-2]
-                        print(aux_string)
-                        if i < len(matrices_dict.keys()) - 1:
-                            aux_string = new_name
-                print(aux_string[:-2])
-        print()
-        tmp_matrices = dict()
-        tmp_fractions = dict()
-        inp = input(">> ")
-        result = read_input(inp, 0)
-
-        if result in {"q", "e"}:
-            quit()
-        elif result == "c":
-            clear_queries = True
-        elif result == "":
-            pass
-        elif result is None:
-            print("I cannot perform the operation requested. Try again.")
-            assign_answer = [False, False, ""]
-        elif isinstance(result, tuple) and result[0] is None:
-            print(result[1])
-            print("I cannot perform the operation requested. Try again.")
-            assign_answer = [False, False, ""]
-        elif isinstance(result, str):
-            print(result)
-        else:
-            if isinstance(result, Matrix):
-                print(result)
-                if assign_answer[0]:  # answer is to be stored
-                    matrices_dict.update({assign_answer[2]: result})
-                    if assign_answer[1]:  # answer is to overwrite an existing matrix
-                        database.delete_matrix(assign_answer[2], False)
-                        print("The result was stored in the existing matrix " + assign_answer[2] + ".")
-                    else:
-                        print("The result was stored in the new matrix " + assign_answer[2] + ".")
-                    database.save_matrix(assign_answer[2])
-                    assign_answer = [False, False, ""]
-            elif isinstance(result, tuple):
-                if result[1] == 1:
-                    print(result[0])
-                else:
-                    print(str(result[0]) + "/" + str(result[1]))
-                if assign_answer[0]:
-                    print("I store only matrices, not numbers, so the result has not been stored.")
-
-
 class Matrix:
-    def __init__(self, rows=0, columns=0, denominator=1, random_assignment=True):
+    def __init__(self, rows=0, columns=0, values=None):
         """Initializes a matrix.
 
          A matrix is defined as a list of lists of numerators, the common denominator is stored separately.
@@ -940,68 +890,66 @@ class Matrix:
          Args:
              rows (int): Number of rows of a matrix.
              columns (int): Number of columns of a matrix.
-             denominator (int): A common denominator.
-             random_assignment (bool): If True, entries of the matrix are assigned at random,
+             values (list):
+                either  tuples (numerator, denominator), the length must be = rows * columns
+                or      list of rows, where each row as above
              otherwise they are entered by a user.
          """
         self.rows = rows
         self.columns = columns
-        if random_assignment:
-            self.mat = [[random.randint(-9, 9) for _ in range(self.columns)] for _ in range(self.rows)]
-            self.denominator = 2 ** random.randint(0, 2) * 3 ** random.randint(0, 2) * 5 ** random.randint(0, 1)
-        else:
-            self.mat = list()
-            self.denominator = denominator
-            denominators = list()
-            # creating list of numerators (mat) and denominators
-            print("Allowed values: integers, decimals or fractions of the form \'num/den\'.")
-            for r in range(rows):
-                while True:
-                    try:
-                        aux_string = input(f"Row {r + 1}/{rows} (enter {columns} CSV): ")
-                        list_temporary = aux_string.strip(",").split(",")
-                        list_numerator = list()
-                        list_denominator = list()
-                        if len(list_temporary) == columns:
-                            numerator = None
-                            for i in range(len(list_temporary)):
-                                numerator, denominator = string_to_fraction(list_temporary[i])
-                                if numerator is None:
-                                    break
-                                list_numerator.append(numerator)
-                                list_denominator.append(denominator)
-                            if numerator is not None:
-                                break
-                    except Exception as e:
-                        print(e)
-                        pass
-                self.mat.append(list_numerator)
-                denominators.append(list_denominator)
-            # finding least common denominator
-            for row in denominators:
-                for denominator in row:
-                    if self.denominator // denominator == self.denominator / denominator:
-                        continue
-                    else:
-                        self.denominator = math.lcm(self.denominator, denominator)
-            # adjusting numerators
-            for row in range(rows):
-                for column in range(columns):
-                    if denominators[row][column] == self.denominator:
-                        continue
-                    else:
-                        self.mat[row][column] = self.mat[row][column] * self.denominator // denominators[row][column]
+        self.mat = list()
+        self.denominator = 1
+        denominators = list()
 
-    def __str__(self, easy=True):
+        if values is None:
+            values = []
+
+        # creating list of numerators (mat) and denominators
+        arranged = (len(values) == rows)
+        for r in range(rows):
+            list_numerator = list()
+            list_denominator = list()
+            for c in range(columns):
+                if arranged:
+                    numerator, denominator = values[r][c]
+                else:
+                    numerator, denominator = values[r * columns + c]
+                list_numerator.append(numerator)
+                list_denominator.append(denominator)
+
+            self.mat.append(list_numerator)
+            denominators.append(list_denominator)
+
+        # finding least common denominator
+        for row in denominators:
+            for denominator in row:
+                if self.denominator // denominator == self.denominator / denominator:
+                    continue
+                else:
+                    self.denominator = math.lcm(self.denominator, denominator)
+
+        # adjusting numerators
+        for row in range(rows):
+            for column in range(columns):
+                if denominators[row][column] == self.denominator:
+                    continue
+                else:
+                    self.mat[row][column] = self.mat[row][column] * self.denominator // denominators[row][column]
+
+    def __str__(self, output_form=None):
         """Returns a string showing the matrix.
 
         If a matrix is empty, its dimensions are displayed within curly braces, e.g. "{3x4}"
 
         Args:
-            easy (bool):
-                If True - the string is created with simple notation.
-                If False -  the string ready to paste into wolframalpha is created.
+            output_form (str):
+                '' - simple notation,
+                'wa' / 'wolframalpha - ready to paste into wolframalpha,
+                'ltx' / 'latex', 'LaTeX' - LaTeX form
         """
+        output_simple = {'', None}
+        output_latex = {'ltx', 'latex', 'LaTeX'}
+        output_wolframalpha = {'wa', 'wolframalpha', 'WolframAlpha'}
         if len(self.mat) == 0:
             return "{" + str(self.rows) + "x" + str(self.columns) + "}"
         # matrix_string - list of rows
@@ -1013,28 +961,44 @@ class Matrix:
             row_string = list()
             for column in range(self.columns):
                 # value_string - a string for a single cell of the matrix
-                numerator, denominator = cancel_down(self.mat[row][column], self.denominator)
+                numerator, denominator = get_fraction_cancelled_down(self.mat[row][column], self.denominator)
                 if denominator == 1:
                     value_string = str(numerator)
                 elif numerator == 0:
                     value_string = "0"
                 else:
-                    value_string = str(numerator) + "/" + str(denominator)
+                    if output_form in output_latex:
+                        if numerator > 0:
+                            sign = ''
+                        else:
+                            sign = '-'
+                            numerator = -numerator
+                        value_string = sign + '\\frac{{{}}}{{{}}}'.format(numerator, denominator)
+                    else:
+                        value_string = str(numerator) + "/" + str(denominator)
                 if len(value_string) > max_columns_widths[column]:
                     max_columns_widths[column] = len(value_string)
                 row_string.append(value_string)
             matrix_string.append(row_string)
-        for row in range(self.rows):
-            for column in range(self.columns):
-                value_string = matrix_string[row][column]
-                if len(value_string) < max_columns_widths[column]:
-                    matrix_string[row][column] = value_string.rjust(max_columns_widths[column])
-        if easy:
+
+        # make columns of even width if the matrix is to be printed in console
+        if output_form in output_simple:
+            for row in range(self.rows):
+                for column in range(self.columns):
+                    value_string = matrix_string[row][column]
+                    if len(value_string) < max_columns_widths[column]:
+                        matrix_string[row][column] = value_string.rjust(max_columns_widths[column])
+
+        separator, beginning_of_row, end_of_row, beginning_of_matrix, end_of_matrix = None, None, None, None, None
+        if output_form in output_simple:
             separator, beginning_of_row, end_of_row = " ", "[", "]\n"
             beginning_of_matrix, end_of_matrix = "[", "]"
-        else:
+        elif output_form in output_wolframalpha:
             separator, beginning_of_row, end_of_row = ", ", " [", "],\n"
             beginning_of_matrix, end_of_matrix = "[[", "]]"
+        elif output_form in output_latex:
+            separator, beginning_of_row, end_of_row = "& ", "", "\\\\\n"
+            beginning_of_matrix, end_of_matrix = "\\begin{pmatrix}", "\\end{pmatrix}"
         return_string = ""
         for row in range(self.rows):
             if row == 0:
@@ -1051,6 +1015,12 @@ class Matrix:
                 else:
                     return_string += separator
         return return_string
+
+    def get_latex_form(self):
+        return self.__str__(output_form='ltx')
+
+    def get_wolframalpha_form(self):
+        return self.__str__(output_form='wa')
 
     def simplify(self):
         """Simplifies the matrix.
@@ -1090,7 +1060,7 @@ class Matrix:
         if bottom < 0:
             top *= -1
             bottom *= -1
-        top, bottom = cancel_down(top, bottom)
+        top, bottom = get_fraction_cancelled_down(top, bottom)
         return_value.denominator = self.denominator * bottom
         for row in range(self.rows):
             row_list = list()
@@ -1139,9 +1109,9 @@ class Matrix:
             another_vector = another_vector.mat[0]
         for i in range(len(self_vector)):
             return_numerator, return_denominator = \
-                add_fractions(return_numerator, return_denominator, self_vector[i] * another_vector[i],
-                              self_vector_denominator * another_vector_denominator)
-            return_numerator, return_denominator = cancel_down(return_numerator, return_denominator)
+                get_sum_of_fractions(return_numerator, return_denominator, self_vector[i] * another_vector[i],
+                                     self_vector_denominator * another_vector_denominator)
+            return_numerator, return_denominator = get_fraction_cancelled_down(return_numerator, return_denominator)
         return return_numerator, return_denominator
 
     def det(self):
@@ -1149,15 +1119,15 @@ class Matrix:
         if self.rows != self.columns:
             return None
         if self.rows == 1:
-            return cancel_down(self.mat[0][0], self.denominator)
+            return get_fraction_cancelled_down(self.mat[0][0], self.denominator)
         else:
             return_numerator, return_denominator = 0, 1
             for col in range(self.columns):
                 det1, det2 = self.minor(0, col).det()
                 new_numerator, new_denominator = \
-                    cancel_down(self.mat[0][col] * (-1) ** col * det1, self.denominator * det2)
+                    get_fraction_cancelled_down(self.mat[0][col] * (-1) ** col * det1, self.denominator * det2)
                 return_numerator, return_denominator = \
-                    add_fractions(return_numerator, return_denominator, new_numerator, new_denominator)
+                    get_sum_of_fractions(return_numerator, return_denominator, new_numerator, new_denominator)
             return return_numerator, return_denominator
 
     def minor(self, row, column):
@@ -1379,7 +1349,8 @@ class Matrix:
             # clear below pivot
             if column < return_matrix.rows - 1:
                 for row in range(column + 1, return_matrix.rows):
-                    factor_top, factor_bottom = cancel_down(-return_matrix.mat[row][column], return_matrix.denominator)
+                    factor_top, factor_bottom = get_fraction_cancelled_down(-return_matrix.mat[row][column],
+                                                                            return_matrix.denominator)
                     return_matrix.row_add_row_multiplied(row, column, factor_top, factor_bottom)
         return_matrix.simplify()
         return return_matrix
@@ -1396,7 +1367,8 @@ class Matrix:
                 if return_matrix.mat[pivot_row][column] != 0 or pivot_row == 0:
                     break
             for row in range(pivot_row - 1, -1, -1):
-                factor_top, factor_bottom = cancel_down(-return_matrix.mat[row][column], return_matrix.denominator)
+                factor_top, factor_bottom = get_fraction_cancelled_down(-return_matrix.mat[row][column],
+                                                                        return_matrix.denominator)
                 return_matrix.row_add_row_multiplied(row, pivot_row, factor_top, factor_bottom)
             return_matrix.simplify()
         return return_matrix
@@ -1412,7 +1384,7 @@ class EmptyMatrix(Matrix):
         or on the number of rows and columns, then the denominator will be initially set to 1.
         """
         super().__init__()
-        if matrix is None:
+        if matrix is None or matrix.mat is None or len(matrix.mat) == 0:
             self.rows = rows
             self.columns = columns
             self.denominator = 1
@@ -1449,9 +1421,15 @@ class EmptyMatrix(Matrix):
 
 
 # matrices_dict = dict()
-tmp_matrices = dict()
 tmp_fractions = dict()
 assign_answer = [False, False, ""]
-# database.import_from_database()
-# view_matrices()
-# quit()
+
+if __name__ == '__main__':
+    fracs = ['1.2', '2/-3', '-4/-3', '2/3', '', '4/14']
+    matrix_vals = get_fractions_from_list_of_strings(fracs)
+    matrix_vals = [matrix_vals[:3], matrix_vals[3:]]
+    m = Matrix(2, 3, matrix_vals)
+    print(m.get_latex_form())
+    mat1 = EmptyMatrix(Matrix(), 3, 3)
+    mat1.identity()
+    print(mat1.get_latex_form())
