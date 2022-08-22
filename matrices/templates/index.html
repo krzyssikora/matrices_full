@@ -3,7 +3,7 @@
 <div class="main">
 <div id="algebra"><h1 class="section-header" id="algebra-header">algebra of matrices</h1>
     <div class="section-content">
-        <div class="algebra-chunk">
+        <!-- <div class="algebra-chunk">
             <p class="entered-formula">
                 \(
                 A\times B^{-1}
@@ -38,7 +38,7 @@
                 \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
                 \)
             </p>
-        </div>
+        </div> -->
         <span id="user-input-span">
             <input type="text" id="user-input" placeholder="enter your expression"></textarea>
         </span>
@@ -47,13 +47,7 @@
 
 <div id="storage">
     <h1 class="section-header" id="storage-header">stored matrices</h1>
-    <div class="section-content">
-        <p id="matrix_a1">
-            \(A_1=
-            \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-            \)
-        </p>
-    </div>
+    <div class="section-content"></div>
 </div>
 
 <!-- Modal for waiting for maths to load -->
@@ -86,4 +80,12 @@
         </div>
     </form>
 </div>
+
+
+<div id="storage-latexed"> {{ matrices_list }}</div>
+
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://unpkg.com/json5@2/dist/index.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/module.js') }}"></script>
 {% endblock %}

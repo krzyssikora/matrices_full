@@ -72,10 +72,7 @@ def get_fraction_cancelled_down(numerator, denominator):
     """
     if denominator < 0:
         numerator, denominator = -numerator, -denominator
-    try:
-        divisor = math.gcd(numerator, denominator)
-    except TypeError:
-        _logger.error('>>>> {}, {}'.format(numerator, denominator))
+    divisor = math.gcd(numerator, denominator)
     if divisor == 1:
         return numerator, denominator
     else:

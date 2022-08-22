@@ -1,6 +1,7 @@
 import logging
 
-DATABASE = "matrices/database/matrices_rational.sqlite"
+# DATABASE = "matrices/database/matrices_rational.sqlite"
+DATABASE = "matrices/database/matrices_rational_tmp.sqlite"
 
 help_options = [["action", "command/-s", "help command"],
                 ["clear screen", "cls", "help cls"],

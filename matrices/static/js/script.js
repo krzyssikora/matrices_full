@@ -1,10 +1,9 @@
+// const matrices_names = [];
+// const maxMatrixDimension = 9;
 var loaded = 0;
-const matrices_names = [];
-const maxMatrixDimension = 9;
 
 (function() {
     "use strict";
-
 
     // info that mathJax is loading
     var pop_up = document.getElementById('pop-up-universal');  
@@ -43,42 +42,23 @@ const maxMatrixDimension = 9;
     var algebra_header = document.getElementById('algebra-header');
     algebra_header.style.width = algebra_box.clientWidth;
     
-    var storage_box = document.getElementById('storage');
-    
-
-    // temporary
-    var node = document.getElementById('matrix_a1');
-    for (let i=0; i<=10; i++) {
-        var clone = node.cloneNode(true);
-        clone.innerHTML = clone.innerHTML.replace('A_1', `A_{${i + 2}}`);
-        clone.id = `matrix_a${i + 2}`
-        storage_box.appendChild(clone);
-    };
-
     var user_input_field = document.getElementById('user-input');
     user_input_field.addEventListener('change', function() {
         console.log(user_input_field.value)
         // TODO the maths starts here
     });
 
-    // create crosses in input boxes
-	$('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
-		// $(this).prev('input').val('').trigger('change').focus();
-        console.log('this div will close')
-	}));
-	// $('div.algebra-chunk').wrap('<span class="deleteicon"></span>').after($('<span>x</span>').click(function() {
-	// 	// $(this).prev('input').val('').trigger('change').focus();
-    //     console.log('this div will close')
-	// }));
 
-
-
-
+    function sendMatrixToDelete(idx) {
+		var request = new XMLHttpRequest()
+		request.open('POST', `/delete_matrix/${idx}`)
+		request.send();        
+	};
 
     function correctMatrixName(matrix_name) {
-        if (matrices_names.includes(matrix_name)) {
-            return [false, `Matrix named "${matrix_name}" already exists.`]
-        };
+        // if (matrices_names.includes(matrix_name)) {
+        //     return [false, `Matrix named "${matrix_name}" already exists.`]
+        // };
 
         for (let word of ["DET", "CLS", "HELP", "CREATE"]) {
             if (matrix_name.includes(word)) {
@@ -117,7 +97,8 @@ const maxMatrixDimension = 9;
         var dimension = parseInt(dimension_string)
         var dimension_string_2 = dimension.toString()
         if (dimension_string.length == dimension_string_2.length) {
-            if ((dimension > 0) && (dimension <= maxMatrixDimension)) {
+            // maxMatrixDimension
+            if ((dimension > 0) && (dimension <= 9)) {
                 return [true, dimension]
             } else {
                 return [false, 'dimension must be a whole number between 1 and 9']
@@ -291,7 +272,7 @@ const maxMatrixDimension = 9;
             e.preventDefault();
             checkName(matrix_name_field);
         });
-    })
+    });
 
     document.getElementById('new-matrix-confirm-button').addEventListener('click', (e) => {
         e.preventDefault();
@@ -309,5 +290,48 @@ const maxMatrixDimension = 9;
             console.log(matrix[i].value || 0);
         ;}
         // TODO: send data to python
-    })
+    });
+
+    $.getScript('/static/js/module.js', function(){
+        const hidden_storage_list = document.getElementById('storage-latexed');
+        hidden_storage_list.style.display = 'block';
+        var storage_list = getHiddenData('storage-latexed', 'object');
+        hidden_storage_list.style.display = 'none';
+        var storage_div = document.getElementById('storage').getElementsByClassName('section-content')[0];
+        storage_div.innerHTML = '';
+        for (let i=0; i < storage_list.length; i++) {
+            var elt = storage_list[i];
+            var outer_span = document.createElement('span');
+            outer_span.className = 'deleteicon';
+            storage_div.appendChild(outer_span);
+            var inner_span = document.createElement('span');
+            inner_span.id = `storage-cross-${i}`;
+            inner_span.innerHTML = 'x';
+            var matrix_div = document.createElement('div');
+            matrix_div.className = 'algebra-chunk';
+            matrix_div.id = `storage-matrix-${i}`;
+            var matrix_expression = document.createElement('p');
+            matrix_expression.className = 'app-answer';
+            matrix_expression.innerHTML = elt;
+            matrix_div.appendChild(matrix_expression);
+            outer_span.appendChild(matrix_div);
+            matrix_div.prepend(inner_span);
+            // actions for crosses
+            inner_span.addEventListener('click', function(e) {
+                e.preventDefault();
+                var tmp_array = this.id.split('-');
+                var idx = parseInt(tmp_array[tmp_array.length - 1]);
+                var dom_idx = `storage-matrix-${idx}`;
+                document.getElementById(dom_idx).remove();
+                sendMatrixToDelete(idx);
+            })
+        };
+    });
+
+    // create crosses in input boxes
+	$('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
+		// $(this).prev('input').val('').trigger('change').focus();
+        console.log('this div will close')
+	}));
+
 })();
