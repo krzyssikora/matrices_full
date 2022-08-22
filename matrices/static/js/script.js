@@ -1,9 +1,35 @@
-// const matrices_names = [];
+var matrices_names = [];
 // const maxMatrixDimension = 9;
 var loaded = 0;
-
+        
 (function() {
     "use strict";
+
+    function convert(elt) {
+        return $("<span />", { html: elt }).text();
+    };
+    
+    function getHiddenData(data_id, data_type) {
+        // data_id (str): element's id
+        // data_type (str): either 'int' or 'object' or 'html'
+        var dom_elt = document.getElementById(data_id);
+        var elt_string = dom_elt.innerHTML;
+        var ret_object;
+        if (elt_string.length == 0) {
+            ret_object = ''
+        } else if (data_type == 'int') {
+            ret_object = parseInt(elt_string)
+        } else if (data_type == 'object') {
+            elt_string = convert(elt_string);
+            ret_object = JSON5.parse(elt_string);
+        } else if (data_type == 'html') {
+            ret_object = convert(elt_string)
+        } else {
+            ret_object = elt_string;
+        };
+        dom_elt.style.display = 'none';
+        return ret_object;
+    };
 
     // info that mathJax is loading
     var pop_up = document.getElementById('pop-up-universal');  
@@ -50,15 +76,34 @@ var loaded = 0;
 
 
     function sendMatrixToDelete(idx) {
-		var request = new XMLHttpRequest()
-		request.open('POST', `/delete_matrix/${idx}`)
+		var request = new XMLHttpRequest();
+		request.open('POST', `/delete_matrix/${idx}`);
 		request.send();        
 	};
 
+    function sendMatrixDataToCreate(matrix) {
+		var request = new XMLHttpRequest();
+        var matrix_str = JSON.stringify(matrix);
+		request.open('POST', `/create_matrix/${matrix_str}`);
+		request.send();        
+	};
+
+    var name_not_used_message = '';
+    
     function correctMatrixName(matrix_name) {
-        // if (matrices_names.includes(matrix_name)) {
-        //     return [false, `Matrix named "${matrix_name}" already exists.`]
-        // };
+        const hidden_matrices_names = document.getElementById('storage-names');
+        hidden_matrices_names.style.display = 'block';
+        matrices_names = getHiddenData('storage-names', 'object');
+        hidden_matrices_names.style.display = 'none'; 
+        if (matrices_names.includes(matrix_name)) {
+            name_not_used_message = [false, `Matrix named "${matrix_name}" already exists.`]
+        } else {
+            name_not_used_message = [true, '']
+        };
+
+        if (!name_not_used_message[0]) {
+            return name_not_used_message
+        };
 
         for (let word of ["DET", "CLS", "HELP", "CREATE"]) {
             if (matrix_name.includes(word)) {
@@ -280,16 +325,16 @@ var loaded = 0;
         var name = matrix_name_field.value;
         var rows = rows_field.value;
         var columns = columns_field.value;
-        var matrix = document.getElementsByName('array');
-
-        console.log(`matrix name: ${name}`);
-        console.log(`matrix rows: ${rows}`);
-        console.log(`matrix columns: ${columns}`);
-        console.log('values');
-        for (var i=0; i<matrix.length; i++) {
-            console.log(matrix[i].value || 0);
+        var node_values = document.getElementsByName('array');
+        var values = [];
+        for (var i=0; i<node_values.length; i++) {
+            values.push(node_values[i].value.replaceAll('-', 'minus').replaceAll('/', 'slash') || 0);
         ;}
         // TODO: send data to python
+        var matrix = {'rows': rows, 'columns': columns, 'values': values};
+        console.log(matrix.values)
+        
+        sendMatrixDataToCreate(matrix);
     });
 
     $.getScript('/static/js/module.js', function(){
