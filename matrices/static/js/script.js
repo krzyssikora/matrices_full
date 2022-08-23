@@ -1,4 +1,5 @@
 var matrices_names = [];
+var algebra_chunks_list = [];
 // const maxMatrixDimension = 9;
 var loaded = 0;
         
@@ -60,6 +61,12 @@ var loaded = 0;
     }
     checkLoaded();
 
+    function sendUserInput(user_input) {
+		var request = new XMLHttpRequest();
+		request.open('POST', `/get_user_input/${user_input}`);
+		request.send();        
+	};
+
     // function ScrollToBottom(element) {
     //     element.scrollTop = element.scrollHeight - element.offsetHeight;
     // };
@@ -67,12 +74,59 @@ var loaded = 0;
     var algebra_box = document.getElementById('algebra');
     var algebra_header = document.getElementById('algebra-header');
     algebra_header.style.width = algebra_box.clientWidth;
+
+    function createAlgebraChunk(in_text, out_text) {
+        var level_0 = document.createElement('span');
+        level_0.className = 'deleteicon';
+        var level_1 = document.createElement('div');
+        level_1.className = 'algebra-chunk';
+        var level_2_cross = document.createElement('span');
+        level_2_cross.innerHTML = 'x';
+        var level_2_in = document.createElement('p');
+        level_2_in.className = 'entered-formula';
+        level_2_in.innerHTML = in_text;
+        var level_2_out = document.createElement('p');
+        level_2_out.className = 'app-answer';
+        level_2_out.innerHTML = out_text;
+        level_1.appendChild(level_2_cross);
+        level_1.appendChild(level_2_in);
+        level_1.appendChild(level_2_out);
+        level_0.appendChild(level_1);
+        level_2_cross.addEventListener('click', function(e){
+            e.preventDefault();
+            level_0.remove();
+        })
+        return level_0;
+    };
     
     var user_input_field = document.getElementById('user-input');
-    user_input_field.addEventListener('change', function() {
-        console.log(user_input_field.value)
-        // TODO the maths starts here
-    });
+
+    user_input_field.onchange = function() {
+        var in_text = user_input_field.value;
+        sendUserInput(in_text);
+        var out_text = '>> ' + in_text + ' <<';
+        var new_element = createAlgebraChunk(in_text, out_text);
+        var container = algebra_box.querySelector('.section-content');
+        var last_child = document.getElementById('clearfieldicon');
+        container.insertBefore(new_element, last_child);
+        user_input_field.value = '';
+        user_input_field.focus();
+        // <span class="deleteicon">
+        //     <div class="algebra-chunk">
+        //         <span>x</span>
+        //         <p class="entered-formula">
+        //             \(
+        //             C^(-1) + B^T
+        //             \)
+        //         </p>
+        //         <p class="app-answer">
+        //             \(
+        //             \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
+        //             \)
+        //         </p>
+        //     </div>
+        // </span>
+    };
 
     // clicking cross in user input clears the field
     document.getElementById('user-input-clear').addEventListener('click', (e) => {
@@ -394,10 +448,10 @@ var loaded = 0;
         };
     });
 
-    // create crosses in input boxes // remove later
-	$('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
-		// $(this).prev('input').val('').trigger('change').focus();
-        console.log('this div will close')
-	}));
+    // // create crosses in input boxes // remove later
+	// $('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
+	// 	// $(this).prev('input').val('').trigger('change').focus();
+    //     console.log('this div will close')
+	// }));
 
 })();
