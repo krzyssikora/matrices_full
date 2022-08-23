@@ -104,7 +104,8 @@ var loaded = 0;
     user_input_field.onchange = function() {
         var in_text = user_input_field.value;
         sendUserInput(in_text);
-        var out_text = '>> ' + in_text + ' <<';
+        var out_text = `\\(${in_text}\\)`;
+        console.log(out_text)
         var new_element = createAlgebraChunk(in_text, out_text);
         var container = algebra_box.querySelector('.section-content');
         var last_child = document.getElementById('clearfieldicon');

@@ -141,7 +141,7 @@ def get_pairs_of_brackets_from_string(input_string, opening_char="(", closing_ch
 
     Returns:
         A list of elements: [opening_index, closing_index] of pairs of indexes of opening and closed brackets.
-        #todo why not a tuple?
+        #todo check if changing list to a tuple may  produce any setbacks
     """
     ret = list()
     openings = list()

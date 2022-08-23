@@ -50,7 +50,7 @@ def get_matrix_data_to_create(matrix):
 @app.route('/get_user_input/<string:user_input>', methods=['POST'])
 def get_and_process_user_input(user_input):
     global matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
-
+    processed_user_input = utils.change_to_latex(user_input)
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
     matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
     return render_template('index.html',

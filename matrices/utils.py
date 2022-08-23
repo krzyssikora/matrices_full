@@ -1,4 +1,4 @@
-from matrices import database
+from matrices import database, algebra, config
 
 
 def get_list_of_matrix_dict_latexed(m_dict):
@@ -8,58 +8,218 @@ def get_list_of_matrix_dict_latexed(m_dict):
     return m_list
 
 
-def create_matrix():
-    # todo: redundant? made in JS
-    """Creates a matrix entered by a user.
+def find_tuple_in_list(list_of_tuples, search_value, which_coordinate=0, idx_from=None, idx_to=None):
+    list_of_tuples.sort()
+    if idx_from is None:
+        idx_from = 0
+    if idx_to is None:
+        idx_to = len(list_of_tuples) - 1
 
-    The user inputs the following information following a prompt:
-    number of rows, number of columns and either entries entered manually or assigned randomly.
-
-    The matrix is added to the global matrices_dict dictionary and to the database.
-    """
-    if len(matrices_dict) == 0:
-        database.import_from_database()
-    # asks for dimensions
-    while True:
-        r = input("Number of rows:    ")
-        try:
-            rows = int(r)
-            break
-        except Exception as e:
-            print(e)
-    while True:
-        c = input("Number of columns: ")
-        try:
-            columns = int(c)
-            break
-        except Exception as e:
-            print(e)
-    # asks for the matrix name
-    print("Matrix name (5 characters, only letters and digits, digits must follow letters).")
-    print("A name cannot contain \"DET\", \"CLS\", \"HELP\", \"END\", \"QUIT\" and \"CREATE\" "
-          "and be equal \"T\", as these are reserved words.")
-    while True:
-        name = input("Enter name: ").upper()
-        correct, stderr = correct_matrix_name(name)
-        if not correct:
-            print(stderr)
+    if idx_from == idx_to:
+        return None
+    elif idx_to - idx_from == 1:
+        if list_of_tuples[idx_from][which_coordinate] == search_value:
+            return list_of_tuples[idx_from]
+        elif list_of_tuples[idx_to][which_coordinate] == search_value:
+            return list_of_tuples[idx_to]
         else:
-            # asks for the method of creating the matrix:
-            # either manually, or randomly
-            while True:
-                method = input("M - enter values manually\nR - assign pseudo-random values\n")
-                if method in {"M", "m"}:
-                    random_assignment = False
-                    break
-                if method in {"R", "r"}:
-                    random_assignment = True
-                    break
-            matrices_dict.update({name: Matrix(rows, columns, random_assignment=random_assignment)})
-            save_matrix(name)
-            print("Matrix " + name + ":")
-            print(matrices_dict.get(name))
-            print("has been created.")
+            return None
+
+    idx_mid = (idx_from + idx_to) // 2
+    pivot = list_of_tuples[idx_mid][which_coordinate]
+    if pivot == search_value:
+        return list_of_tuples[idx_mid]
+    elif pivot < search_value:
+        return find_tuple_in_list(list_of_tuples, search_value, which_coordinate, idx_mid, idx_to)
+    elif pivot > search_value:
+        return find_tuple_in_list(list_of_tuples, search_value, which_coordinate, idx_from, idx_mid)
+
+
+def get_inner_pair_id(brackets, idx):
+    start_pos, end_pos = brackets[idx]
+    while True:
+        idx += 1
+        if idx >= len(brackets):
+            return None
+        if brackets[idx][1] < end_pos:
+            return idx
+
+
+def insert_latex_indices(input_string):
+    brackets = algebra.get_pairs_of_brackets_from_string(input_string)
+    starts_of_indices = [idx + 1 for idx in range(len(input_string)) if input_string[idx] == '^']
+    remaining_pos = list()
+    for start_pos in starts_of_indices:
+        if input_string[start_pos] == '(':
+            both_pos = find_tuple_in_list(brackets, start_pos)
+            if both_pos:
+                end_pos = both_pos[1]
+                input_string = \
+                    input_string[:start_pos] + '{' + \
+                    input_string[start_pos + 1: end_pos] + '}' + input_string[end_pos + 1:]
+        else:
+            remaining_pos.append(start_pos)
+    # now deal with 'B^10' -> 'B^{10}
+    indices_to_tackle = list()
+    for start_pos in remaining_pos:
+        end_pos = start_pos
+        while True:
+            character = input_string[end_pos]
+            if not character.isdigit():
+                break
+            end_pos += 1
+            if end_pos >= len(input_string):
+                break
+        if end_pos < start_pos:
+            continue
+        indices_to_tackle.append((start_pos, end_pos))
+
+    indices_to_tackle.sort()
+    # find inner indicies: ...^(...^(...)...)
+    # 1. find an inner index
+    # 2. add curly braces to the string
+    # 3. remove the tuple with the index from the list
+    # 4. add 2 to all following indicies
+    # 5. break when no inner left
+    idx = 0
+    while True:
+        if idx >= len(indices_to_tackle):
             break
+        inner_id = get_inner_pair_id(indices_to_tackle, idx)
+        if inner_id:
+            start_pos, end_pos = indices_to_tackle[inner_id]
+            input_string = \
+                input_string[:start_pos] + '{' + input_string[start_pos + 1: end_pos] + '}' + input_string[end_pos + 1:]
+            indices_to_tackle.pop(inner_id)
+            for i in range(inner_id, len(indices_to_tackle)):
+                indices_to_tackle[i] = (indices_to_tackle[i][0] + 2, indices_to_tackle[i][1] + 2)
+        else:
+            idx += 1
+    # all inner removed, so only mutually exclusive left
+    indices_to_tackle.sort(reverse=True)
+    for start_pos, end_pos in indices_to_tackle:
+        input_string = input_string[:start_pos] + '{' + input_string[start_pos + 1: end_pos] + '}' + \
+                       input_string[end_pos + 1:]
+
+    return input_string
+
+
+def find_position_of_a_number_in_string(input_string, starting_id, go_left):
+    # if o denotes a char with starting_id, we want to find
+    # .....(...)o(...)......    or
+    # .....11111o22222......
+    #      ^   ^ ^   ^          if go_left is True / False
+    #      T   T F   F
+    def stop_condition(str_len, temp_id, go_l):
+        ret_bool = (temp_id < 0) if go_l else (temp_id >= str_len)
+        return ret_bool
+
+    brackets = algebra.get_pairs_of_brackets_from_string(input_string)
+    if go_left:
+        the_tuple = find_tuple_in_list(brackets, starting_id - 1, 1)
+    else:
+        the_tuple = find_tuple_in_list(brackets, starting_id + 1, 0)
+    if the_tuple:
+        return the_tuple[0], the_tuple[1] + 1
+
+    shift = -1 if go_left else 1
+    idx = starting_id
+    while True:
+        idx += shift
+        if stop_condition(len(input_string), idx, go_left):
+            break
+        if not input_string[idx].isdigit():
+            break
+
+    if (idx - starting_id) * (-1 if go_left else 1) == 1:
+        return None
+    if go_left:
+        return idx + 1, starting_id
+    else:
+        return starting_id + 1, idx
+
+
+def insert_latex_fractions(input_string):
+    while True:
+        idx = input_string.find('/')
+        if idx == -1:
+            break
+        id_before_start, id_before_end = find_position_of_a_number_in_string(input_string, idx, True)
+        id_after_start, id_after_end = find_position_of_a_number_in_string(input_string, idx, False)
+        input_string = \
+            input_string[:id_before_start] + '\\frac{' + \
+            input_string[id_before_start: id_before_end] + '}{' + \
+            input_string[id_after_start: id_after_end] + '}' + input_string[id_after_end:]
+        return input_string
+
+
+def insert_latex_multiplications(input_string):
+    multiplication_signs_ids = [idx for idx in range(len(input_string)) if input_string[idx] == '*']
+    multiplication_signs_ids.sort(reverse=True)
+    for idx in multiplication_signs_ids:
+        input_string = input_string[:idx] + '\\times ' + input_string[idx + 1:]
+    return input_string
+
+
+def change_to_latex(input_string):
+    input_string = insert_latex_indices(input_string)
+    input_string = insert_latex_fractions(input_string)
+    input_string = insert_latex_multiplications(input_string)
+    return input_string
+
+
+# def create_matrix():
+#     # todo: redundant? made in JS
+#     """Creates a matrix entered by a user.
+#
+#     The user inputs the following information following a prompt:
+#     number of rows, number of columns and either entries entered manually or assigned randomly.
+#
+#     The matrix is added to the global matrices_dict dictionary and to the database.
+#     """
+#     if len(matrices_dict) == 0:
+#         database.import_from_database()
+#     # asks for dimensions
+#     while True:
+#         r = input("Number of rows:    ")
+#         try:
+#             rows = int(r)
+#             break
+#         except Exception as e:
+#             print(e)
+#     while True:
+#         c = input("Number of columns: ")
+#         try:
+#             columns = int(c)
+#             break
+#         except Exception as e:
+#             print(e)
+#     # asks for the matrix name
+#     print("Matrix name (5 characters, only letters and digits, digits must follow letters).")
+#     print("A name cannot contain \"DET\", \"CLS\", \"HELP\", \"END\", \"QUIT\" and \"CREATE\" "
+#           "and be equal \"T\", as these are reserved words.")
+#     while True:
+#         name = input("Enter name: ").upper()
+#         correct, stderr = correct_matrix_name(name)
+#         if not correct:
+#             print(stderr)
+#         else:
+#             # asks for the method of creating the matrix:
+#             # either manually, or randomly
+#             while True:
+#                 method = input("M - enter values manually\nR - assign pseudo-random values\n")
+#                 if method in {"M", "m"}:
+#                     random_assignment = False
+#                     break
+#                 if method in {"R", "r"}:
+#                     random_assignment = True
+#                     break
+#             matrices_dict.update({name: Matrix(rows, columns, random_assignment=random_assignment)})
+#             save_matrix(name)
+#             print("Matrix " + name + ":")
+#             print(matrices_dict.get(name))
+#             print("has been created.")
+#             break
 
 
 def matrix_help_general_menu():
@@ -74,14 +234,14 @@ def matrix_help_general_menu():
     print("To get more details type in a help command.")
     print()
     max_len = [0, 0, 0]
-    for i in range(len(options)):
+    for i in range(len(config.help_options)):
         for j in range(3):
-            if len(options[i][j]) > max_len[j]:
-                max_len[j] = len(options[i][j])
+            if len(config.help_options[i][j]) > max_len[j]:
+                max_len[j] = len(config.help_options[i][j])
 
     max_len[0] += 2
     print("+" + "-" * (max_len[0] + 4) + "+" + "-" * (max_len[1] + 2) + "+" + "-" * (max_len[2] + 2) + "+")
-    for i, line in enumerate(options):
+    for i, line in enumerate(config.help_options):
         str_action = line[0]
         str_command = line[1]
         str_help = line[2]
@@ -105,10 +265,10 @@ def matrix_help_command(help_command):
         None otherwise.
     """
     help_commands = list()
-    for elt in help_explanations:
+    for elt in config.help_explanations:
         help_commands.append(elt[0])
     if help_command in help_commands:
-        our_line = help_explanations[help_commands.index(help_command)]
+        our_line = config.help_explanations[help_commands.index(help_command)]
         both_lists = [list(), list()]
         for i in [1, 2]:
             if isinstance(our_line[i], str):
@@ -155,3 +315,8 @@ def matrix_help_command(help_command):
         return ""
     else:
         return None
+
+
+if __name__ == '__main__':
+    string = '3*(b^(a^(-1)b^(-1)))/2'
+    print(change_to_latex(string))
