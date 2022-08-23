@@ -74,6 +74,13 @@ var loaded = 0;
         // TODO the maths starts here
     });
 
+    // clicking cross in user input clears the field
+    document.getElementById('user-input-clear').addEventListener('click', (e) => {
+        e.preventDefault();
+        user_input_field.value = '';
+        user_input_field.focus(); 
+    })
+
 
     function sendMatrixToDelete(idx) {
 		var request = new XMLHttpRequest();
@@ -383,7 +390,6 @@ var loaded = 0;
                 // Move focus to end of user-input field
                 input.setSelectionRange(end, end);
                 input.focus();
-                console.log(m_name);
             })
         };
     });

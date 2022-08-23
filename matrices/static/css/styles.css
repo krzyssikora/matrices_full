@@ -114,7 +114,8 @@ body {
 }
 
 .section-content {
-  margin-top: calc(var(--section-header-height) + var(--navbar-height));
+  /* margin-top: calc(var(--section-header-height) + var(--navbar-height)); */
+  margin-top: var(--section-header-height);
 }
 
 #algebra {
@@ -159,6 +160,37 @@ span.deleteicon span:hover {
   border: solid 1px var(--colour-left-border);
 }
 
+span#clearfieldicon span {
+  position: relative;
+  display: block;
+  right: 20px;
+  top: -35px;
+  width: 20px;
+  height: 20px;
+  border-radius: 30%;
+  color: var(--colour-left-border);
+  background-color: var(--colour-left);
+  font: 18px monospace;
+  text-align: center;
+  line-height: 1em;
+  cursor: pointer;
+}
+span#clearfieldicon span:hover {
+  color: var(--colour-navbar-background-hover);
+  cursor: pointer;
+}
+
+#user-input {
+  width: calc(100% - 2 * var(--standard-margin-padding));
+  margin: var(--standard-margin-padding);
+  height: 26px;
+  direction: ltr;
+  border: solid 1px var(--colour-scrollbar);
+  border-radius: 4px;
+  font-size: large;
+}
+
+
 .entered-formula {
   background-color: var(--colour-left-formula);
   margin: var(--standard-margin-padding);
@@ -191,16 +223,6 @@ span.deleteicon span:hover {
   border: none;
   border-radius: 5px;
   background-color: var(--colour-pop-up-button);
-}
-
-#user-input {
-  width: calc(100% - 2 * var(--standard-margin-padding));
-  /* height: 20px; */
-  margin: var(--standard-margin-padding);
-  direction: ltr;
-  border: solid 1px var(--colour-scrollbar);
-  border-radius: 4px;
-  font-size: large;
 }
 
 #storage {
