@@ -5,6 +5,8 @@
   --section-height: calc(100vh - 2 * var(--navbar-height));
   --items-padding: 10px;
   --standard-margin-padding: 10px;
+  /* --standard-margin-padding-vertical: 10px;
+  --standard-margin-padding-horizontal: 10px; */
   --left-width: calc(70% - 2 * var(--items-padding));
   --right-width: calc(30% - 2 * var(--items-padding));
   /* colours */
@@ -15,7 +17,6 @@
   --colour-navbar-background-hover: rgb(255, 126, 94);
   --colour-navbar-text-hover: white;
   --colour-left-formula: rgb(255, 236, 175);
-  /* --colour-left-border: rgb(255, 214, 79); */
   --colour-left-border: rgb(145, 86, 9);
   --colour-section-header: rgba(255, 255, 255, 0.5);
   --colour-scrollbar: rgb(255, 126, 94);
@@ -128,11 +129,11 @@ body {
 }
 
 .algebra-chunk {
-  width: calc(100% - 2 * var(--standard-margin-padding));
+  width: 100%;
   border: solid 1px var(--colour-left-border);
   border-radius: 10px;
   padding-top: 0;
-  margin: var(--standard-margin-padding);
+  margin: var(--standard-margin-padding) 0;
 }
 
 span.deleteicon span {

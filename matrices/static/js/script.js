@@ -357,10 +357,11 @@ var loaded = 0;
             var matrix_expression = document.createElement('p');
             matrix_expression.className = 'app-answer';
             matrix_expression.innerHTML = elt;
+            matrix_expression.dataset.name = elt.split('=')[0].slice(2,);
             matrix_div.appendChild(matrix_expression);
             outer_span.appendChild(matrix_div);
             matrix_div.prepend(inner_span);
-            // actions for crosses
+            // delete stored entry when a cross clicked
             inner_span.addEventListener('click', function(e) {
                 e.preventDefault();
                 var tmp_array = this.id.split('-');
@@ -369,6 +370,20 @@ var loaded = 0;
                 document.getElementById(dom_idx).remove();
                 window.location.href = '/';
                 sendMatrixToDelete(idx);
+            })
+            // apply entry's name when expression clicked
+            matrix_expression.addEventListener('click', function(e) {
+                e.preventDefault();
+                var m_name = this.dataset.name;
+                const input = document.getElementById('user-input');
+                input.value = input.value + m_name;
+
+                const end = input.value.length;
+
+                // Move focus to end of user-input field
+                input.setSelectionRange(end, end);
+                input.focus();
+                console.log(m_name);
             })
         };
     });
