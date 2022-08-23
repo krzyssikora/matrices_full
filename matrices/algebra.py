@@ -17,6 +17,7 @@ def get_fraction_from_string(fraction_as_string):
     Raises:
         Exception when the parameter is incorrect.
     """
+    fraction_as_string = str(fraction_as_string)
     try:
         if fraction_as_string == '':  # a field left blank is to result in 0
             return 0, 1
@@ -1424,6 +1425,8 @@ assign_answer = [False, False, ""]
 if __name__ == '__main__':
     fracs = ['1.2', '2/-3', '-4/-3', '2/3', '', '4/14']
     matrix_vals = get_fractions_from_list_of_strings(fracs)
+    print(matrix_vals)
+    quit()
     matrix_vals = [matrix_vals[:3], matrix_vals[3:]]
     m = Matrix(2, 3, matrix_vals)
     print(m.get_latex_form())

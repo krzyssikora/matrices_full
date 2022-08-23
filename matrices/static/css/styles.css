@@ -326,7 +326,7 @@ span.deleteicon span:hover {
 
 
 /* hidden elements */
-#storage-latexed {
+.hidden-data {
   visibility: hidden;
   display: none;
 }

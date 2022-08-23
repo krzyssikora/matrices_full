@@ -328,12 +328,11 @@ var loaded = 0;
         var node_values = document.getElementsByName('array');
         var values = [];
         for (var i=0; i<node_values.length; i++) {
-            values.push(node_values[i].value.replaceAll('-', 'minus').replaceAll('/', 'slash') || 0);
+            values.push(node_values[i].value.replaceAll('-', 'minussign').replaceAll('/', 'slashsign') || 0);
         ;}
-        // TODO: send data to python
-        var matrix = {'rows': rows, 'columns': columns, 'values': values};
-        console.log(matrix.values)
-        
+
+        var matrix = {'name': name, 'rows': rows, 'columns': columns, 'values': values};
+        window.location.href = '/';
         sendMatrixDataToCreate(matrix);
     });
 
@@ -368,12 +367,13 @@ var loaded = 0;
                 var idx = parseInt(tmp_array[tmp_array.length - 1]);
                 var dom_idx = `storage-matrix-${idx}`;
                 document.getElementById(dom_idx).remove();
+                window.location.href = '/';
                 sendMatrixToDelete(idx);
             })
         };
     });
 
-    // create crosses in input boxes
+    // create crosses in input boxes // remove later
 	$('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
 		// $(this).prev('input').val('').trigger('change').focus();
         console.log('this div will close')
