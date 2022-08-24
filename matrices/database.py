@@ -2,7 +2,7 @@ import sqlite3
 from matrices.algebra import Matrix
 from matrices import config
 from matrices.config import _logger
-from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names, assign_answer
 
 
 def import_from_database():

@@ -1,4 +1,6 @@
 from matrices import database, algebra, config
+from matrices.config import _logger
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names, assign_answer
 
 
 def get_list_of_matrix_dict_latexed(m_dict):
@@ -15,9 +17,7 @@ def find_tuple_in_list(list_of_tuples, search_value, which_coordinate=0, idx_fro
     if idx_to is None:
         idx_to = len(list_of_tuples) - 1
 
-    if idx_from == idx_to:
-        return None
-    elif idx_to - idx_from == 1:
+    if idx_from == idx_to or idx_to - idx_from == 1:
         if list_of_tuples[idx_from][which_coordinate] == search_value:
             return list_of_tuples[idx_from]
         elif list_of_tuples[idx_to][which_coordinate] == search_value:
@@ -46,6 +46,7 @@ def get_inner_pair_id(brackets, idx):
 
 
 def insert_latex_indices(input_string):
+    # firstly deal with 'M^(...)' -> 'M^{...}'
     brackets = algebra.get_pairs_of_brackets_from_string(input_string)
     starts_of_indices = [idx + 1 for idx in range(len(input_string)) if input_string[idx] == '^']
     remaining_pos = list()
@@ -59,17 +60,14 @@ def insert_latex_indices(input_string):
                     input_string[start_pos + 1: end_pos] + '}' + input_string[end_pos + 1:]
         else:
             remaining_pos.append(start_pos)
-    # now deal with 'B^10' -> 'B^{10}
+    # now deal with 'M^-10' -> 'M^{-10}' and with 'M^10' -> 'M^{10}'
     indices_to_tackle = list()
     for start_pos in remaining_pos:
         end_pos = start_pos
-        while True:
-            character = input_string[end_pos]
-            if not character.isdigit():
-                break
+        if ord(input_string[end_pos]) == ord("-"):
             end_pos += 1
-            if end_pos >= len(input_string):
-                break
+        while end_pos < len(input_string) and input_string[end_pos].isdigit():
+            end_pos += 1
         if end_pos < start_pos:
             continue
         indices_to_tackle.append((start_pos, end_pos))
@@ -98,8 +96,8 @@ def insert_latex_indices(input_string):
     # all inner removed, so only mutually exclusive left
     indices_to_tackle.sort(reverse=True)
     for start_pos, end_pos in indices_to_tackle:
-        input_string = input_string[:start_pos] + '{' + input_string[start_pos + 1: end_pos] + '}' + \
-                       input_string[end_pos + 1:]
+        input_string = input_string[:start_pos] + '{' + input_string[start_pos: end_pos] + '}' + \
+                       input_string[end_pos:]
 
     return input_string
 
@@ -150,7 +148,7 @@ def insert_latex_fractions(input_string):
             input_string[:id_before_start] + '\\frac{' + \
             input_string[id_before_start: id_before_end] + '}{' + \
             input_string[id_after_start: id_after_end] + '}' + input_string[id_after_end:]
-        return input_string
+    return input_string
 
 
 def insert_latex_multiplications(input_string):
@@ -162,10 +160,56 @@ def insert_latex_multiplications(input_string):
 
 
 def change_to_latex(input_string):
+    _logger.debug('input before processing    : {}'.format(input_string))
     input_string = insert_latex_indices(input_string)
+    _logger.debug('input after indices        : {}'.format(input_string))
     input_string = insert_latex_fractions(input_string)
+    _logger.debug('input after fractions      : {}'.format(input_string))
     input_string = insert_latex_multiplications(input_string)
+    _logger.debug('input after multiplications: {}'.format(input_string))
     return input_string
+
+
+def get_input_read(inp):
+    """Reads user's input and returns an adequate answer."""
+    global matrices_dict, assign_answer, tmp_matrices, tmp_fractions
+    tmp_matrices = dict()
+    tmp_fractions = dict()
+    result = algebra.read_input(inp, 0)
+
+    # if result in {"q", "e"}: quit() todo these have to be changed in read_input, too
+
+    return_string = ''
+    if result is None:
+        return_string = 'I cannot perform the operation requested. Try again.'
+        assign_answer = [False, False, '']
+    elif isinstance(result, tuple) and result[0] is None:
+        return_string = result[1] + 'I cannot perform the operation requested. Try again.'
+        assign_answer = [False, False, ""]
+    elif isinstance(result, str):
+        return_string = result
+    else:
+        if isinstance(result, algebra.Matrix):
+            return_string = result.get_latex_form()
+            if len(assign_answer) > 0 and assign_answer[0]:  # answer is to be stored
+                matrices_dict.update({assign_answer[2]: result})
+                if assign_answer[1]:  # answer is to overwrite an existing matrix
+                    database.delete_matrix(assign_answer[2], False)
+                    return_string += '\nThe result was stored in the existing matrix {}.'.format(assign_answer[2])
+                else:
+                    return_string += '\nThe result was stored in the new matrix {}.'.format(assign_answer[2])
+                database.save_matrix(assign_answer[2])
+                assign_answer = [False, False, ""]
+        elif isinstance(result, tuple):
+            if result[1] == 1:
+                return_string = str(result[0])
+            else:
+                return_string = '\\frac{{{}}}{{{}}}'.format(result[0], result[1])
+            if assign_answer[0]:
+                return_string += '\nOnly matrices can be stored.'
+
+    return return_string
+
 
 
 # def create_matrix():
@@ -318,5 +362,5 @@ def matrix_help_command(help_command):
 
 
 if __name__ == '__main__':
-    string = '3*(b^(a^(-1)b^(-1)))/2'
+    string = 'a^(22)'
     print(change_to_latex(string))

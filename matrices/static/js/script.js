@@ -102,11 +102,13 @@ var loaded = 0;
     var user_input_field = document.getElementById('user-input');
 
     user_input_field.onchange = function() {
-        var in_text = user_input_field.value;
-        sendUserInput(in_text);
-        var out_text = `\\(${in_text}\\)`;
+        var initial_text = user_input_field.value;
+        sendUserInput(initial_text);
+        var in_text = document.getElementById('input-latexed').innerHTML;
+        var out_text = document.getElementById('input-processed').innerHTML;
+        console.log(in_text)
         console.log(out_text)
-        var new_element = createAlgebraChunk(in_text, out_text);
+        var new_element = createAlgebraChunk(initial_text, out_text);
         var container = algebra_box.querySelector('.section-content');
         var last_child = document.getElementById('clearfieldicon');
         container.insertBefore(new_element, last_child);

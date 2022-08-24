@@ -1,5 +1,5 @@
 from matrices import app
-from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names, assign_answer
 from matrices import database, utils, algebra
 from matrices.config import _logger
 from flask import render_template, request
@@ -50,12 +50,17 @@ def get_matrix_data_to_create(matrix):
 @app.route('/get_user_input/<string:user_input>', methods=['POST'])
 def get_and_process_user_input(user_input):
     global matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
-    processed_user_input = utils.change_to_latex(user_input)
+    input_processed = utils.get_input_read(user_input)
+    _logger.debug('input processed: {}'.format(input_processed))
+    input_latexed = utils.change_to_latex(user_input)
+    _logger.debug('input latexed: {}'.format(input_latexed))
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
     matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
     return render_template('index.html',
                            matrices_names=matrices_names,
-                           matrices_list=matrices_list)
+                           matrices_list=matrices_list,
+                           input_processed=input_processed,
+                           input_latexed=input_latexed)
 
 
 @app.route('/help')

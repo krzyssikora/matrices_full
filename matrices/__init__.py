@@ -4,6 +4,7 @@ matrices_dict = dict()
 matrices_str_dict = dict()
 tmp_matrices = dict()
 matrices_names = list()
+assign_answer = [False, False, ""]
 
 from matrices import database
 from matrices.config import _logger

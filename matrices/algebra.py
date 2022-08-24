@@ -1,7 +1,7 @@
 import math
 from matrices.config import help_options, help_explanations
 from matrices import database, utils, config
-from matrices import matrices_dict, matrices_str_dict, tmp_matrices
+from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names, assign_answer
 from matrices.config import _logger
 
 
@@ -594,16 +594,16 @@ def read_input(inp, input_iteration=0):
                 if input_string[pos_power0] == "T":
                     exponent = "T"
                 else:
-                    if ord(inp[pos_power1]) == ord("-"):
+                    if ord(input_string[pos_power1]) == ord("-"):
                         pos_power1 += 1
-                    while pos_power1 < len(input_string) and ord("0") <= ord(input_string[pos_power1]) <= ord("9"):
+                    while pos_power1 < len(input_string) and input_string[pos_power1].isdigit():
                         pos_power1 += 1
                     pos_power1 -= 1
                     if pos_power1 < pos_power0:
                         return None
             if exponent is None:
                 # power is not T, (T) nor (-1), it must be an integer then
-                power_val = read_input(inp[pos_power0: pos_power1 + 1], input_iteration + 1)
+                power_val = read_input(input_string[pos_power0: pos_power1 + 1], input_iteration + 1)
                 if isinstance(power_val, tuple) and power_val[1] == 1:
                     exponent = power_val[0]
                     try:
@@ -859,6 +859,7 @@ def read_input(inp, input_iteration=0):
         if inp == "":
             return ""  # everything is fine, but all already done
     inp = rearrange_spaces_and_brackets(inp)
+    _logger.debug('...... {}'.format(inp))
     inp = power(inp)
     if inp is None:
         return None, "A power cannot be evaluated."
