@@ -46,9 +46,19 @@ def get_inner_pair_id(brackets, idx):
 
 
 def insert_latex_indices(input_string):
-    # firstly deal with 'M^(...)' -> 'M^{...}'
+    # firstly deal with 'M^T' and 'M^(T)' -> 'M^{T}'
+    for idx in {'^(T)', '^T'}:
+        while True:
+            pos = input_string.find(idx)
+            if pos < 0:
+                break
+            input_string = input_string[:pos + 1] + '{T}' + input_string[pos + len(idx):]
+    _logger.debug('1 input_string: {}'.format(input_string))
+
+    # now deal with 'M^(...)' -> 'M^{...}'
     brackets = algebra.get_pairs_of_brackets_from_string(input_string)
-    starts_of_indices = [idx + 1 for idx in range(len(input_string)) if input_string[idx] == '^']
+    starts_of_indices = [idx + 1 for idx in range(len(input_string)) if input_string[idx] == '^'
+                         if (idx + 1 < len(input_string) and input_string[idx + 1] != '{')]
     remaining_pos = list()
     for start_pos in starts_of_indices:
         if input_string[start_pos] == '(':
@@ -60,6 +70,8 @@ def insert_latex_indices(input_string):
                     input_string[start_pos + 1: end_pos] + '}' + input_string[end_pos + 1:]
         else:
             remaining_pos.append(start_pos)
+    _logger.debug('2 input_string: {}, {}'.format(input_string, remaining_pos))
+
     # now deal with 'M^-10' -> 'M^{-10}' and with 'M^10' -> 'M^{10}'
     indices_to_tackle = list()
     for start_pos in remaining_pos:
@@ -71,6 +83,8 @@ def insert_latex_indices(input_string):
         if end_pos < start_pos:
             continue
         indices_to_tackle.append((start_pos, end_pos))
+
+    _logger.debug('3 input_string: {}, {}'.format(input_string, indices_to_tackle))
 
     indices_to_tackle.sort()
     # find inner indicies: ...^(...^(...)...)
@@ -93,11 +107,15 @@ def insert_latex_indices(input_string):
                 indices_to_tackle[i] = (indices_to_tackle[i][0] + 2, indices_to_tackle[i][1] + 2)
         else:
             idx += 1
+
+    _logger.debug('4 input_string: {}, {}'.format(input_string, indices_to_tackle))
     # all inner removed, so only mutually exclusive left
     indices_to_tackle.sort(reverse=True)
     for start_pos, end_pos in indices_to_tackle:
         input_string = input_string[:start_pos] + '{' + input_string[start_pos: end_pos] + '}' + \
                        input_string[end_pos:]
+
+    _logger.debug('5 input_string: {}'.format(input_string))
 
     return input_string
 
@@ -113,12 +131,13 @@ def find_position_of_a_number_in_string(input_string, starting_id, go_left):
         return ret_bool
 
     brackets = algebra.get_pairs_of_brackets_from_string(input_string)
-    if go_left:
-        the_tuple = find_tuple_in_list(brackets, starting_id - 1, 1)
-    else:
-        the_tuple = find_tuple_in_list(brackets, starting_id + 1, 0)
-    if the_tuple:
-        return the_tuple[0], the_tuple[1] + 1
+    if brackets:
+        if go_left:
+            the_tuple = find_tuple_in_list(brackets, starting_id - 1, 1)
+        else:
+            the_tuple = find_tuple_in_list(brackets, starting_id + 1, 0)
+        if the_tuple:
+            return the_tuple[0], the_tuple[1] + 1
 
     shift = -1 if go_left else 1
     idx = starting_id
@@ -159,6 +178,18 @@ def insert_latex_multiplications(input_string):
     return input_string
 
 
+def change_latex_restricted_words(input_string):
+    for restricted_word in {'det'}:
+        for word in {restricted_word, restricted_word.upper()}:
+            pos = -1
+            while True:
+                pos = input_string.find(word, pos + 1)
+                if pos < 0:
+                    break
+                input_string = input_string[:pos] + '\\{} '.format(word.lower()) + input_string[pos + len(word):]
+    return input_string
+
+
 def change_to_latex(input_string):
     _logger.debug('input before processing    : {}'.format(input_string))
     input_string = insert_latex_indices(input_string)
@@ -167,6 +198,8 @@ def change_to_latex(input_string):
     _logger.debug('input after fractions      : {}'.format(input_string))
     input_string = insert_latex_multiplications(input_string)
     _logger.debug('input after multiplications: {}'.format(input_string))
+    input_string = change_latex_restricted_words(input_string)
+    _logger.debug('input after restr. words: {}'.format(input_string))
     return input_string
 
 
@@ -181,10 +214,10 @@ def get_input_read(inp):
 
     return_string = ''
     if result is None:
-        return_string = 'I cannot perform the operation requested. Try again.'
+        return_string = '\\text{I cannot perform the operation requested. Try again.}'
         assign_answer = [False, False, '']
     elif isinstance(result, tuple) and result[0] is None:
-        return_string = result[1] + 'I cannot perform the operation requested. Try again.'
+        return_string = result[1] + '\\text{ I cannot perform the operation requested. Try again.}'
         assign_answer = [False, False, ""]
     elif isinstance(result, str):
         return_string = result
@@ -195,9 +228,9 @@ def get_input_read(inp):
                 matrices_dict.update({assign_answer[2]: result})
                 if assign_answer[1]:  # answer is to overwrite an existing matrix
                     database.delete_matrix(assign_answer[2], False)
-                    return_string += '\nThe result was stored in the existing matrix {}.'.format(assign_answer[2])
+                    return_string += '\\text{{ The result was stored in the existing matrix }}{}.'.format(assign_answer[2])
                 else:
-                    return_string += '\nThe result was stored in the new matrix {}.'.format(assign_answer[2])
+                    return_string += '{{ The result was stored in the new matrix }}{}.'.format(assign_answer[2])
                 database.save_matrix(assign_answer[2])
                 assign_answer = [False, False, ""]
         elif isinstance(result, tuple):
@@ -206,7 +239,7 @@ def get_input_read(inp):
             else:
                 return_string = '\\frac{{{}}}{{{}}}'.format(result[0], result[1])
             if assign_answer[0]:
-                return_string += '\nOnly matrices can be stored.'
+                return_string += '\n\\text{Only matrices can be stored.}'
 
     return return_string
 
@@ -361,6 +394,10 @@ def matrix_help_command(help_command):
         return None
 
 
+def mathjax_wrap(ltx_string):
+    return '\\( {} \\)'.format(ltx_string)
+
+
 if __name__ == '__main__':
-    string = 'a^(22)'
+    string = 'a+a'
     print(change_to_latex(string))

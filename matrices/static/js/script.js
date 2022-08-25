@@ -5,6 +5,23 @@ var loaded = 0;
         
 (function() {
     "use strict";
+    var ajax_get = function(url, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                try {
+                    var data = JSON.parse(xmlhttp.responseText);
+                } catch(err) {
+                    console.log(err.message + " in " + xmlhttp.responseText);
+                    return;
+                }
+                callback(data);
+            }
+        };
+
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    };
 
     function convert(elt) {
         return $("<span />", { html: elt }).text();
@@ -67,9 +84,9 @@ var loaded = 0;
 		request.send();        
 	};
 
-    // function ScrollToBottom(element) {
-    //     element.scrollTop = element.scrollHeight - element.offsetHeight;
-    // };
+    function ScrollToBottom(element) {
+        element.scrollTop = element.scrollHeight - element.offsetHeight;
+    };
 
     var algebra_box = document.getElementById('algebra');
     var algebra_header = document.getElementById('algebra-header');
@@ -103,32 +120,34 @@ var loaded = 0;
 
     user_input_field.onchange = function() {
         var initial_text = user_input_field.value;
-        sendUserInput(initial_text);
-        var in_text = document.getElementById('input-latexed').innerHTML;
-        var out_text = document.getElementById('input-processed').innerHTML;
-        console.log(in_text)
-        console.log(out_text)
-        var new_element = createAlgebraChunk(initial_text, out_text);
-        var container = algebra_box.querySelector('.section-content');
-        var last_child = document.getElementById('clearfieldicon');
-        container.insertBefore(new_element, last_child);
-        user_input_field.value = '';
-        user_input_field.focus();
-        // <span class="deleteicon">
-        //     <div class="algebra-chunk">
-        //         <span>x</span>
-        //         <p class="entered-formula">
-        //             \(
-        //             C^(-1) + B^T
-        //             \)
-        //         </p>
-        //         <p class="app-answer">
-        //             \(
-        //             \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-        //             \)
-        //         </p>
-        //     </div>
-        // </span>
+        var replacements = {
+            '+': 'plussign',
+            '/': 'slashsign',
+            '#': 'hashsign',
+            '[': '(',
+            ']': ')',
+        };
+        for (const [key, value] of Object.entries(replacements)) {
+            initial_text = initial_text.replaceAll(key, value)
+        };
+        var url = '/get_user_input?user_input=' + initial_text;
+        var in_text;
+        var out_text;
+
+        ajax_get(url, function(data) {
+            matrices_names = data['matrices_names'];
+//            'matrices_list': matrices_list,       todo hidden in index.html under id=storage-latexed
+            in_text = data['input_latexed'];
+            out_text = data['input_processed'];
+            var new_element = createAlgebraChunk(in_text, out_text);
+            var container = algebra_box.querySelector('.section-content');
+            var last_child = document.getElementById('clearfieldicon');
+            container.insertBefore(new_element, last_child);
+            user_input_field.value = '';
+            MathJax.typeset();
+            ScrollToBottom(document.getElementById('algebra'))
+            user_input_field.focus();
+        });
     };
 
     // clicking cross in user input clears the field
