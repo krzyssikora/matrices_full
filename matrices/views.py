@@ -2,7 +2,8 @@ from matrices import app
 from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_names, assign_answer
 from matrices import database, utils, algebra
 from matrices.config import _logger
-from flask import render_template, request
+from flask import render_template, request, jsonify
+
 
 @app.route('/')
 def index():
@@ -14,6 +15,13 @@ def index():
                            matrices_names=matrices_names,
                            matrices_list=matrices_list)
 
+#
+# @app.route('/from_python')
+# def send_data(js_data):
+#     r = Response(response='<p>{}</p>'.format(js_data), status=200, mimetype="application/xml")
+#     r.headers["Content-Type"] = "text/css; charset=utf-8"
+#     return r
+#
 
 @app.route('/delete_matrix/<int:idx>', methods=['POST'])
 def get_matrix_to_delete(idx):
@@ -47,20 +55,28 @@ def get_matrix_data_to_create(matrix):
                            matrices_list=matrices_list)
 
 
-@app.route('/get_user_input/<string:user_input>', methods=['POST'])
-def get_and_process_user_input(user_input):
+@app.route('/get_user_input')
+def get_and_process_user_input():
     global matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
-    input_processed = utils.get_input_read(user_input)
-    _logger.debug('input processed: {}'.format(input_processed))
-    input_latexed = utils.change_to_latex(user_input)
-    _logger.debug('input latexed: {}'.format(input_latexed))
+    user_input = str(request.args.get('user_input', '')).upper()
+    replacements = {
+        'PLUSSIGN': '+',
+        'SLASHSIGN': '/',
+        'HASHSIGN': '#',
+    }
+    for replacement in replacements:
+        user_input = user_input.replace(replacement, replacements[replacement])
+    input_processed = utils.mathjax_wrap(utils.get_input_read(user_input))
+    input_latexed = utils.mathjax_wrap(utils.change_to_latex(user_input))
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
     matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
-    return render_template('index.html',
-                           matrices_names=matrices_names,
-                           matrices_list=matrices_list,
-                           input_processed=input_processed,
-                           input_latexed=input_latexed)
+
+    return jsonify({
+        'matrices_names': matrices_names,
+        'matrices_list': matrices_list,
+        'input_processed': input_processed,
+        'input_latexed': input_latexed,
+    })
 
 
 @app.route('/help')

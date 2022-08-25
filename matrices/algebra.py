@@ -644,9 +644,12 @@ def read_input(inp, input_iteration=0):
                     m_result = EmptyMatrix(base_val)
                     m_result.identity()
                     for _ in range(exponent):
-                        m_result = m_result.multiply_matrix(base_val)
-                m_name = "M_" + str(len(tmp_matrices))
-                tmp_matrices.update({m_name: m_result})
+                        m_result = m_result.multiply_matrix(base_val) if m_result else None
+                if m_result:
+                    m_name = "M_" + str(len(tmp_matrices))
+                    tmp_matrices.update({m_name: m_result})
+                else:
+                    return None
             else:
                 return None
             num_spaces = pos_power1 - pos_base0 + 1 - len(m_name)
@@ -855,14 +858,14 @@ def read_input(inp, input_iteration=0):
     for prefix in ["AUG(", "SUB(", "CREATE(", "RREF(", "REF(", "DET("]:
         inp = prefix_functions(inp, prefix)
         if inp is None:
-            return None, "Improper input of \"" + prefix[:-1] + "\"."
+            return None, "\\text{Improper input of }\"" + prefix[:-1] + "\"."
         if inp == "":
             return ""  # everything is fine, but all already done
     inp = rearrange_spaces_and_brackets(inp)
     _logger.debug('...... {}'.format(inp))
     inp = power(inp)
     if inp is None:
-        return None, "A power cannot be evaluated."
+        return None, "\\text{A power cannot be evaluated.}"
     inp = rearrange_spaces_and_brackets(inp)
     if len(brackets) > 0:
         inp = read_input_recursively(inp)
