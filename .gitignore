@@ -2710,3 +2710,5 @@ venv_matrices/Lib/site-packages/setuptools/_distutils/__pycache__/spawn.cpython-
 venv_matrices/Lib/site-packages/setuptools/_distutils/__pycache__/sysconfig.cpython-39.pyc
 
 venv_matrices/Lib/site-packages/setuptools/_distutils/__pycache__/text_file.cpython-39.pyc
+
+*.pyc

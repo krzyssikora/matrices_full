@@ -12,3 +12,9 @@ from matrices.config import _logger
 app = Flask(__name__)
 
 import matrices.views
+
+# todo:
+#  1. assigning answers in user input
+#  2. refreshing storage after 1
+#  3. different way of refreshing storage
+#  4. passing data from python to JS without hidden elements
