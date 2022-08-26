@@ -195,11 +195,14 @@ span#clearfieldicon span:hover {
   background-color: var(--colour-left-formula);
   margin: var(--standard-margin-padding);
   margin-top: -10px;
+  margin-bottom: 0;
   padding: var(--standard-margin-padding);
 }
 
 .app-answer {
   padding: var(--standard-margin-padding);
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .pop-up-form-label {

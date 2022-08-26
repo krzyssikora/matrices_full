@@ -53,7 +53,6 @@ def insert_latex_indices(input_string):
             if pos < 0:
                 break
             input_string = input_string[:pos + 1] + '{T}' + input_string[pos + len(idx):]
-    _logger.debug('1 input_string: {}'.format(input_string))
 
     # now deal with 'M^(...)' -> 'M^{...}'
     brackets = algebra.get_pairs_of_brackets_from_string(input_string)
@@ -70,7 +69,6 @@ def insert_latex_indices(input_string):
                     input_string[start_pos + 1: end_pos] + '}' + input_string[end_pos + 1:]
         else:
             remaining_pos.append(start_pos)
-    _logger.debug('2 input_string: {}, {}'.format(input_string, remaining_pos))
 
     # now deal with 'M^-10' -> 'M^{-10}' and with 'M^10' -> 'M^{10}'
     indices_to_tackle = list()
@@ -83,8 +81,6 @@ def insert_latex_indices(input_string):
         if end_pos < start_pos:
             continue
         indices_to_tackle.append((start_pos, end_pos))
-
-    _logger.debug('3 input_string: {}, {}'.format(input_string, indices_to_tackle))
 
     indices_to_tackle.sort()
     # find inner indicies: ...^(...^(...)...)
@@ -108,14 +104,11 @@ def insert_latex_indices(input_string):
         else:
             idx += 1
 
-    _logger.debug('4 input_string: {}, {}'.format(input_string, indices_to_tackle))
     # all inner removed, so only mutually exclusive left
     indices_to_tackle.sort(reverse=True)
     for start_pos, end_pos in indices_to_tackle:
         input_string = input_string[:start_pos] + '{' + input_string[start_pos: end_pos] + '}' + \
                        input_string[end_pos:]
-
-    _logger.debug('5 input_string: {}'.format(input_string))
 
     return input_string
 

@@ -470,10 +470,4 @@ var loaded = 0;
         };
     });
 
-    // // create crosses in input boxes // remove later
-	// $('div.algebra-chunk').wrap('<span class="deleteicon"></span>').prepend($('<span>x</span>').click(function() {
-	// 	// $(this).prev('input').val('').trigger('change').focus();
-    //     console.log('this div will close')
-	// }));
-
 })();
