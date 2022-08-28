@@ -1,8 +1,7 @@
 var matrices_names = [];
 var algebra_chunks_list = [];
 // const maxMatrixDimension = 9;
-var loaded = 0;
-        
+
 (function() {
     "use strict";
     var ajax_get = function(url, callback) {
@@ -26,7 +25,7 @@ var loaded = 0;
     function convert(elt) {
         return $("<span />", { html: elt }).text();
     };
-    
+
     function getHiddenData(data_id, data_type) {
         // data_id (str): element's id
         // data_type (str): either 'int' or 'object' or 'html'
@@ -50,14 +49,14 @@ var loaded = 0;
     };
 
     // info that mathJax is loading
-    var pop_up = document.getElementById('pop-up-universal');  
+    var pop_up = document.getElementById('pop-up-universal');
     pop_up.style.display = 'block';
 
     var modal_content = document.getElementById('modal_div');
     var i = 0
 
     function checkLoaded() {
-        if(loaded === 0) {
+        if(window.loaded === 0) {
             for (let j=0; j<5; j++) {
                 let clone = document.createElement('span');
                 clone.innerHTML = 'mathematics is loading... ';
@@ -68,7 +67,7 @@ var loaded = 0;
                 clone.style.fontSize = (50 + Math.floor(Math.random()*35)).toString(16) + 'px';
                 modal_content.appendChild(clone);
             };
-            window.setTimeout(checkLoaded, 1); 
+            window.setTimeout(checkLoaded, 1);
         } else {
             setTimeout(() => {
                 modal_content.innerHTML = '';
@@ -81,7 +80,7 @@ var loaded = 0;
     function sendUserInput(user_input) {
 		var request = new XMLHttpRequest();
 		request.open('POST', `/get_user_input/${user_input}`);
-		request.send();        
+		request.send();
 	};
 
     function ScrollToBottom(element) {
@@ -115,7 +114,7 @@ var loaded = 0;
         })
         return level_0;
     };
-    
+
     var user_input_field = document.getElementById('user-input');
 
     user_input_field.onchange = function() {
@@ -154,30 +153,30 @@ var loaded = 0;
     document.getElementById('user-input-clear').addEventListener('click', (e) => {
         e.preventDefault();
         user_input_field.value = '';
-        user_input_field.focus(); 
+        user_input_field.focus();
     })
 
 
     function sendMatrixToDelete(idx) {
 		var request = new XMLHttpRequest();
 		request.open('POST', `/delete_matrix/${idx}`);
-		request.send();        
+		request.send();
 	};
 
     function sendMatrixDataToCreate(matrix) {
 		var request = new XMLHttpRequest();
         var matrix_str = JSON.stringify(matrix);
 		request.open('POST', `/create_matrix/${matrix_str}`);
-		request.send();        
+		request.send();
 	};
 
     var name_not_used_message = '';
-    
+
     function correctMatrixName(matrix_name) {
         const hidden_matrices_names = document.getElementById('storage-names');
         hidden_matrices_names.style.display = 'block';
         matrices_names = getHiddenData('storage-names', 'object');
-        hidden_matrices_names.style.display = 'none'; 
+        hidden_matrices_names.style.display = 'none';
         if (matrices_names.includes(matrix_name)) {
             name_not_used_message = [false, `Matrix named "${matrix_name}" already exists.`]
         } else {
@@ -243,8 +242,8 @@ var loaded = 0;
     var matrix_rest_div = document.getElementById('matrix-rest');
     var matrix_name_field;
     var rows_field;
-    var columns_field;  
-    
+    var columns_field;
+
     function refreshNewMatrixDivs() {
         matrix_name_div.innerHTML = '<label class="pop-up-form-label" for="matrix-name" id="matrix-name-label"><b>matrix name</b></label><input class="pop-up-form-input" type="text" name="matrix-name" id="matrix-name"><span class="input-error-info" id="matrix-error-info"></span>';
         matrix_name_div.style.display = 'none';
@@ -254,11 +253,11 @@ var loaded = 0;
         matrix_rest_div.style.display = 'none';
         matrix_name_field = document.getElementById('matrix-name');
         rows_field = document.getElementById('rows');
-        columns_field = document.getElementById('columns');    
+        columns_field = document.getElementById('columns');
     };
 
     refreshNewMatrixDivs();
-        
+
     function makeGrid(rows_number, columns_number) {
         matrix_input_div.style.display = 'grid';
         var spot = document.getElementById('matrix-input');
@@ -326,7 +325,7 @@ var loaded = 0;
             });
             // enter should focus on rows input
             rows_field.addEventListener('keypress', (e) => {
-                var key = e.charCode || e.keyCode || 0;   
+                var key = e.charCode || e.keyCode || 0;
                 if (key == 13) {
                     e.preventDefault();
                     checkDimension(rows_field, 'rows');
@@ -349,7 +348,7 @@ var loaded = 0;
             });
             // enter should focus on columns input
             columns_field.addEventListener('keypress', (e) => {
-                var key = e.charCode || e.keyCode || 0;   
+                var key = e.charCode || e.keyCode || 0;
                 if (key == 13) {
                     e.preventDefault();
                     checkDimension(columns_field, 'columns');
@@ -389,7 +388,7 @@ var loaded = 0;
         });
         // enter should focus on rows input
         matrix_name_field.addEventListener('keypress', (e) => {
-            var key = e.charCode || e.keyCode || 0;   
+            var key = e.charCode || e.keyCode || 0;
             if (key == 13) {
                 e.preventDefault();
                 checkName(matrix_name_field);
@@ -420,54 +419,28 @@ var loaded = 0;
     });
 
     $.getScript('/static/js/module.js', function(){
-        const hidden_storage_list = document.getElementById('storage-latexed');
-        hidden_storage_list.style.display = 'block';
-        var storage_list = getHiddenData('storage-latexed', 'object');
-        hidden_storage_list.style.display = 'none';
-        var storage_div = document.getElementById('storage').getElementsByClassName('section-content')[0];
-        storage_div.innerHTML = '';
-        for (let i=0; i < storage_list.length; i++) {
-            var elt = storage_list[i];
-            var outer_span = document.createElement('span');
-            outer_span.className = 'deleteicon';
-            storage_div.appendChild(outer_span);
-            var inner_span = document.createElement('span');
-            inner_span.id = `storage-cross-${i}`;
-            inner_span.innerHTML = 'x';
-            var matrix_div = document.createElement('div');
-            matrix_div.className = 'algebra-chunk';
-            matrix_div.id = `storage-matrix-${i}`;
-            var matrix_expression = document.createElement('p');
-            matrix_expression.className = 'app-answer';
-            matrix_expression.innerHTML = elt;
-            matrix_expression.dataset.name = elt.split('=')[0].slice(2,);
-            matrix_div.appendChild(matrix_expression);
-            outer_span.appendChild(matrix_div);
-            matrix_div.prepend(inner_span);
-            // delete stored entry when a cross clicked
-            inner_span.addEventListener('click', function(e) {
-                e.preventDefault();
-                var tmp_array = this.id.split('-');
-                var idx = parseInt(tmp_array[tmp_array.length - 1]);
-                var dom_idx = `storage-matrix-${idx}`;
-                document.getElementById(dom_idx).remove();
-                window.location.href = '/';
-                sendMatrixToDelete(idx);
-            })
-            // apply entry's name when expression clicked
-            matrix_expression.addEventListener('click', function(e) {
-                e.preventDefault();
-                var m_name = this.dataset.name;
-                const input = document.getElementById('user-input');
-                input.value = input.value + m_name;
-
-                const end = input.value.length;
-
-                // Move focus to end of user-input field
-                input.setSelectionRange(end, end);
-                input.focus();
-            })
-        };
+        $('[id*="storage-cross"]').click((e) => {
+            e.preventDefault();
+            console.log('click e', e)
+            console.log('this', this)
+            let el = e.currentTarget
+            let idx = el.id.match(/.+-(\d+)$/)[1]
+            let dom_idx = `storage-matrix-${idx}`;
+            document.getElementById(dom_idx).remove();
+            window.location.href = '/';
+            sendMatrixToDelete(idx);
+        })
+        $("#storage p.app-answer").click(e => {
+            e.preventDefault();
+            let el = e.currentTarget
+            var m_name = el.dataset.name;
+            const input = document.getElementById('user-input');
+            input.value = input.value + m_name;
+            const end = input.value.length;
+            // Move focus to end of user-input field
+            input.setSelectionRange(end, end);
+            input.focus();
+        })
     });
 
 })();

@@ -6,7 +6,7 @@ from matrices import matrices_dict, matrices_str_dict, tmp_matrices, matrices_na
 def get_list_of_matrix_dict_latexed(m_dict):
     m_list = list()
     for name, matrix in m_dict.items():
-        m_list.append('\\({}={}\\)'.format(name, matrix.get_latex_form()))
+        m_list.append((name, '\({}={}\)'.format(name, matrix.get_latex_form())))
     return m_list
 
 
@@ -179,7 +179,7 @@ def change_latex_restricted_words(input_string):
                 pos = input_string.find(word, pos + 1)
                 if pos < 0:
                     break
-                input_string = input_string[:pos] + '\\{} '.format(word.lower()) + input_string[pos + len(word):]
+                input_string = input_string[:pos] + '\{} '.format(word.lower()) + input_string[pos + len(word):]
     return input_string
 
 
@@ -388,7 +388,7 @@ def matrix_help_command(help_command):
 
 
 def mathjax_wrap(ltx_string):
-    return '\\( {} \\)'.format(ltx_string)
+    return '\( {} \)'.format(ltx_string)
 
 
 if __name__ == '__main__':

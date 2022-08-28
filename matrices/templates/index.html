@@ -3,19 +3,17 @@
 <div class="main">
 <div id="algebra"><h1 class="section-header" id="algebra-header">algebra</h1>
     <div class="section-content">
-        <!-- <div class="algebra-chunk">
+         <!-- <div class="algebra-chunk">
             <p class="entered-formula">
                 \(
                 A\times B^{-1}
                 \)
             </p>
             <p class="app-answer">
-                \(
-                \begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}
-                \)
+                \(\begin{pmatrix}\frac{4}{3}& -\frac{2}{3}& -\frac{1}{2}\\-\frac{7}{6}& \frac{1}{2}& -\frac{1}{2}\\1& \frac{2}{3}& \frac{2}{3}\\\end{pmatrix}\)
             </p>
         </div> -->
-        
+
         <span id="clearfieldicon">
             <input type="text" id="user-input" placeholder="enter your expression"><span id="user-input-clear">x</span>
         </span>
@@ -24,7 +22,15 @@
 
 <div id="storage">
     <h1 class="section-header" id="storage-header">storage</h1>
-    <div class="section-content"></div>
+    <div class="section-content">
+        {% for matrix_data in matrices_list %}
+            <span class="deleteicon">
+                <div class="algebra-chunk" id="storage-matrix-{{loop.index0}}">
+                    <span id="storage-cross-{{loop.index0}}">x</span>
+                    <p class="app-answer" data-name="{{matrix_data.0}}">{{matrix_data.1}}</p></div>
+            </span>
+        {% endfor %}
+    </div>
 </div>
 
 <!-- Modal for waiting for maths to load -->
@@ -51,7 +57,7 @@
                 If you leave a cell empty, a value of 0 will be assigned.
             </div>
             <div id="pop-up-form-cancelbtn-container">
-                <button class="pop-up-form-button" type="button" 
+                <button class="pop-up-form-button" type="button"
                 onclick="document.getElementById('enter_matrix').style.display='none'" class="cancelbtn">cancel</button>
             </div>
         </div>
@@ -59,13 +65,9 @@
 </div>
 
 
-<div class="hidden-data" id="storage-latexed">{{ matrices_list }}</div>
+<div class="hidden-data" id="storage-latexed"></div>
 <div class="hidden-data" id="storage-names">{{ matrices_names }}</div>
 <div class="hidden-data" id="input-latexed">{{ input_latexed }}</div>
 <div class="hidden-data" id="input-processed">{{ input_processed }}</div>
 
-<script src="https://code.jquery.com/jquery-latest.min.js"></script>
-<script src="https://unpkg.com/json5@2/dist/index.min.js"></script>
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
-<script src="{{ url_for('static', filename='js/module.js') }}"></script>
 {% endblock %}

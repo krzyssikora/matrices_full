@@ -999,8 +999,8 @@ class Matrix:
             separator, beginning_of_row, end_of_row = ", ", " [", "],\n"
             beginning_of_matrix, end_of_matrix = "[[", "]]"
         elif output_form in output_latex:
-            separator, beginning_of_row, end_of_row = "& ", "", "\\\\\n"
-            beginning_of_matrix, end_of_matrix = "\\begin{pmatrix}", "\\end{pmatrix}"
+            separator, beginning_of_row, end_of_row = "& ", "", "\\\\ "
+            beginning_of_matrix, end_of_matrix = r"\begin{pmatrix}", "\end{pmatrix}"
         return_string = ""
         for row in range(self.rows):
             if row == 0:

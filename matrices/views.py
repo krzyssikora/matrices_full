@@ -10,9 +10,9 @@ def index():
     global matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
     matrices_dict = database.import_from_database()
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
-    matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
+    # matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
     return render_template('index.html',
-                           matrices_names=matrices_names,
+                        #   matrices_names=matrices_names,
                            matrices_list=matrices_list)
 
 #
@@ -26,12 +26,11 @@ def index():
 @app.route('/delete_matrix/<int:idx>', methods=['POST'])
 def get_matrix_to_delete(idx):
     global matrices_dict, matrices_str_dict, tmp_matrices, matrices_names
-    matrix_name_to_delete = matrices_names[idx]
-    database.delete_matrix(matrix_name_to_delete)
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
-    matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
+    matrix_name_to_delete =  matrices_list.pop(idx)[0]
+    database.delete_matrix(matrix_name_to_delete)
+
     return render_template('index.html',
-                           matrices_names=matrices_names,
                            matrices_list=matrices_list)
 
 
@@ -49,9 +48,7 @@ def get_matrix_data_to_create(matrix):
         matrices_dict[name] = new_matrix
         database.save_matrix(name)
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
-    matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
     return render_template('index.html',
-                           matrices_names=matrices_names,
                            matrices_list=matrices_list)
 
 
@@ -69,10 +66,9 @@ def get_and_process_user_input():
     input_processed = utils.mathjax_wrap(utils.get_input_read(user_input))
     input_latexed = utils.mathjax_wrap(utils.change_to_latex(user_input))
     matrices_list = utils.get_list_of_matrix_dict_latexed(matrices_dict)
-    matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
+    # matrices_names = [elt.split('=')[0].lstrip('\\(') for elt in matrices_list]
 
     return jsonify({
-        'matrices_names': matrices_names,
         'matrices_list': matrices_list,
         'input_processed': input_processed,
         'input_latexed': input_latexed,
