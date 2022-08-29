@@ -1,6 +1,7 @@
-var matrices_names = [];
+var matrices_names;
 var algebra_chunks_list = [];
 // const maxMatrixDimension = 9;
+var algebra_content;
 
 (function() {
     "use strict";
@@ -48,6 +49,18 @@ var algebra_chunks_list = [];
         return ret_object;
     };
 
+    function updateStorage() {
+        $( "#storage div.section-content" ).load(window.location.href + " #storage div.section-content" );
+    };
+
+    function focusOnInput() {
+        const input = document.getElementById('user-input');
+        const end = input.value.length;
+        // Move focus to end of user-input field
+        input.setSelectionRange(end, end);
+        input.focus();
+    };
+
     // info that mathJax is loading
     var pop_up = document.getElementById('pop-up-universal');
     pop_up.style.display = 'block';
@@ -72,7 +85,8 @@ var algebra_chunks_list = [];
             setTimeout(() => {
                 modal_content.innerHTML = '';
                 pop_up.style.display = 'none';
-            }, 1)  // later change to 1000
+                focusOnInput();
+            }, 1)  // later change to 1000???
         };
     }
     checkLoaded();
@@ -117,7 +131,7 @@ var algebra_chunks_list = [];
 
     var user_input_field = document.getElementById('user-input');
 
-    user_input_field.onchange = function() {
+    function getDataFromUserInput() {
         var initial_text = user_input_field.value;
         var replacements = {
             '+': 'plussign',
@@ -145,15 +159,19 @@ var algebra_chunks_list = [];
             user_input_field.value = '';
             MathJax.typeset();
             ScrollToBottom(document.getElementById('algebra'))
-            user_input_field.focus();
+            focusOnInput();
         });
+    };
+
+    user_input_field.onchange = function() {
+        getDataFromUserInput();
     };
 
     // clicking cross in user input clears the field
     document.getElementById('user-input-clear').addEventListener('click', (e) => {
         e.preventDefault();
         user_input_field.value = '';
-        user_input_field.focus();
+        focusOnInput();
     })
 
 
@@ -401,7 +419,8 @@ var algebra_chunks_list = [];
         });
     });
 
-    document.getElementById('new-matrix-confirm-button').addEventListener('click', (e) => {
+
+    document.getElementById('new-matrix-confirm-button').addEventListener('click', e => {
         e.preventDefault();
         document.getElementById('enter_matrix').style.display = 'none';
         var name = matrix_name_field.value;
@@ -414,22 +433,43 @@ var algebra_chunks_list = [];
         ;}
 
         var matrix = {'name': name, 'rows': rows, 'columns': columns, 'values': values};
-        window.location.href = '/';
+        algebra_content = $("#algebra div.section-content").html();
         sendMatrixDataToCreate(matrix);
+        updateStorage();
+        setTimeout(() => {
+            MathJax.typesetPromise();
+            ScrollToBottom(document.getElementById('storage'));
+            focusOnInput();
+        }, 100);
+        addListenersDeleteMatrix();
+        addListenersCopyMatrixToInput();
     });
+    
+    addListenersDeleteMatrix();
+    addListenersCopyMatrixToInput();
 
-    $.getScript('/static/js/module.js', function(){
+    function addListenersDeleteMatrix () {
         $('[id*="storage-cross"]').click((e) => {
             e.preventDefault();
-            console.log('click e', e)
-            console.log('this', this)
             let el = e.currentTarget
             let idx = el.id.match(/.+-(\d+)$/)[1]
             let dom_idx = `storage-matrix-${idx}`;
             document.getElementById(dom_idx).remove();
-            window.location.href = '/';
+            // window.location.href = '/';
             sendMatrixToDelete(idx);
         })
+    };
+
+    document.getElementById('user-input').addEventListener('keypress', (e) => {
+        var key = e.charCode || e.keyCode || 0;
+        if (key == 13) {
+            e.preventDefault();
+            console.log('change');
+            getDataFromUserInput();
+        }
+    })
+
+    function addListenersCopyMatrixToInput () {
         $("#storage p.app-answer").click(e => {
             e.preventDefault();
             let el = e.currentTarget
@@ -441,6 +481,6 @@ var algebra_chunks_list = [];
             input.setSelectionRange(end, end);
             input.focus();
         })
-    });
+    };
 
 })();

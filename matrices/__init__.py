@@ -19,3 +19,4 @@ import matrices.views
 #  3. different way of refreshing storage
 #  4. passing data from python to JS without hidden elements
 #  5. 'a^-1*145/3' does not work, but 'a^-1*145*(1/3)' does
+#  6. refreshing after delete does not work
