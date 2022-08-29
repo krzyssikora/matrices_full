@@ -163,9 +163,13 @@ var algebra_content;
         });
     };
 
-    user_input_field.onchange = function() {
-        getDataFromUserInput();
-    };
+    document.getElementById('user-input').addEventListener('keypress', (e) => {
+        var key = e.charCode || e.keyCode || 0;
+        if (key == 13) {
+            e.preventDefault();
+            getDataFromUserInput();
+        }
+    })
 
     // clicking cross in user input clears the field
     document.getElementById('user-input-clear').addEventListener('click', (e) => {
@@ -459,15 +463,6 @@ var algebra_content;
             sendMatrixToDelete(idx);
         })
     };
-
-    document.getElementById('user-input').addEventListener('keypress', (e) => {
-        var key = e.charCode || e.keyCode || 0;
-        if (key == 13) {
-            e.preventDefault();
-            console.log('change');
-            getDataFromUserInput();
-        }
-    })
 
     function addListenersCopyMatrixToInput () {
         $("#storage p.app-answer").click(e => {
