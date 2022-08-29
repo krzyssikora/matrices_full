@@ -1,5 +1,9 @@
 setup.py
 matrices/__init__.py
+matrices/algebra.py
+matrices/config.py
+matrices/database.py
+matrices/utils.py
 matrices/views.py
 matrices.egg-info/PKG-INFO
 matrices.egg-info/SOURCES.txt
